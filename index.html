@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URBANRIDE - Premium Car Rental</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Clash+Display:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="brand" href="#home">
+                <img src="Logo.png" alt="URBANRIDE Logo" class="logo-img">
+                <div class="brand-text">
+                    <span class="brand-name">UrbanRide</span>
+                    <span class="brand-tagline">Car Rental</span>
+                </div>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="#home" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#fleet" class="nav-link">Our Fleet</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#services" class="nav-link">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contact" class="nav-link">Contact</a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#login" class="nav-link ghost-link">Portal</a>
+                <a href="#booking" class="btn btn-primary nav-cta">Book</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-inner container">
+            <div class="hero-grid">
+                <div class="hero-copy">
+                    <p class="hero-kicker">UrbanRide · Premium Fleet</p>
+                    <h1 class="hero-title">Premium drives. <br><span class="accent">Zero friction.</span></h1>
+                    <p class="hero-subtitle">Concierge delivery, instant confirmations, and clean handoffs<br>powered by your Oracle 11g automation.</p>
+                    <a href="#booking" class="btn btn-primary hero-cta">Book a car</a>
+                </div>
+                <div class="hero-photo">
+                    <div class="photo-overlay"></div>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <div class="mouse">
+                    <div class="wheel"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Booking Section -->
+    <section class="quick-booking" id="booking">
+        <div class="container">
+            <h2 class="section-title">Quick Booking</h2>
+            <div class="booking-form">
+                <div class="form-group">
+                    <label for="pickup-location">Pickup Location</label>
+                    <input type="text" id="pickup-location" placeholder="Enter pickup location">
+                </div>
+                <div class="form-group">
+                    <label for="dropoff-location">Drop-off Location</label>
+                    <input type="text" id="dropoff-location" placeholder="Enter drop-off location">
+                </div>
+                <div class="form-group">
+                    <label for="pickup-date">Pickup Date</label>
+                    <input type="date" id="pickup-date">
+                </div>
+                <div class="form-group">
+                    <label for="dropoff-date">Drop-off Date</label>
+                    <input type="date" id="dropoff-date">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-search">Search Cars</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="services">
+        <div class="container">
+            <h2 class="section-title">Why Choose URBANRIDE?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚗</div>
+                    <h3>Premium Fleet</h3>
+                    <p>Choose from our wide selection of luxury and economy vehicles</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <h3>Easy Payment</h3>
+                    <p>Secure and hassle-free payment processing</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Maintenance</h3>
+                    <p>Well-maintained vehicles for your safety and comfort</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Damage Reporting</h3>
+                    <p>Transparent damage reporting and insurance coverage</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Role-Based Access</h3>
+                    <p>Secure system with role-based workflows</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Fast Booking</h3>
+                    <p>Quick and easy booking process</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fleet Preview Section -->
+    <section class="fleet-preview" id="fleet">
+        <div class="container">
+            <h2 class="section-title">Our Fleet</h2>
+            <div class="fleet-grid">
+                <div class="fleet-card">
+                    <div class="fleet-image luxury"></div>
+                    <div class="fleet-content">
+                        <h3>Luxury</h3>
+                        <p>Premium vehicles for special occasions</p>
+                        <span class="fleet-price">From $150/day</span>
+                    </div>
+                </div>
+                <div class="fleet-card">
+                    <div class="fleet-image suv"></div>
+                    <div class="fleet-content">
+                        <h3>SUV</h3>
+                        <p>Spacious and comfortable for families</p>
+                        <span class="fleet-price">From $80/day</span>
+                    </div>
+                </div>
+                <div class="fleet-card">
+                    <div class="fleet-image economy"></div>
+                    <div class="fleet-content">
+                        <h3>Economy</h3>
+                        <p>Affordable and fuel-efficient options</p>
+                        <span class="fleet-price">From $40/day</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>URBANRIDE</h3>
+                    <p>Your trusted partner for premium car rental services.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#fleet">Fleet</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li>Email: info@urbanride.com</li>
+                        <li>Phone: +1 (555) 123-4567</li>
+                        <li>Address: 123 Car Rental St</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 URBANRIDE. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
