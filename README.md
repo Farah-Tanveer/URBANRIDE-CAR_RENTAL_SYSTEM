@@ -1,3 +1,2 @@
 # DIGITAL_CAR_RENTAL_SYSTEM
 A full-stack Car Rental Management System implementing a normalized ERD, business constraints, and role-based workflows. Covers the complete rental lifecycle from booking and payment to maintenance and damage reporting. Designed with scalability, data integrity, and real-world operational logic in mind.
-It was basically our semester project for thr course Database Systems and we were instructed to design a complete car rental system and we did so but now after end of semester we decided to work futher on it from covering the weak points to turning it into a full stack application a sleeek frontend for users and integrating it with our database through a well structured backend.
