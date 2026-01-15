@@ -1,0 +1,21 @@
+{
+  "name": "digital_car_rental_system",
+  "version": "1.0.0",
+  "description": "A full-stack Car Rental Management System implementing a normalized ERD, business constraints, and role-based workflows. Covers the complete rental lifecycle from booking and payment to maintenance and damage reporting. Designed with scalability, data integrity, and real-world operational logic in mind.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Farah-Tanveer/DIGITAL_CAR_RENTAL_SYSTEM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Farah-Tanveer/DIGITAL_CAR_RENTAL_SYSTEM/issues"
+  },
+  "homepage": "https://github.com/Farah-Tanveer/DIGITAL_CAR_RENTAL_SYSTEM#readme"
+}
