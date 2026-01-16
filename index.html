@@ -13,7 +13,7 @@
     <!-- Navigation Bar -->
     <nav class="navbar">
         <div class="nav-container">
-            <a class="brand" href="#home">
+            <a class="brand" href="#/" onclick="router.navigate('/'); return false;">
                 <img src="Logo.png" alt="URBANRIDE Logo" class="logo-img">
                 <div class="brand-text">
                     <span class="brand-name">UrbanRide</span>
@@ -22,24 +22,24 @@
             </a>
             <ul class="nav-menu" id="navMenu">
                 <li class="nav-item">
-                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#/" class="nav-link" onclick="router.navigate('/'); return false;">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#fleet" class="nav-link">Our Fleet</a>
+                    <a href="#/fleet" class="nav-link" onclick="router.navigate('/fleet'); return false;">Our Fleet</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#services" class="nav-link">Services</a>
+                    <a href="#/services" class="nav-link" onclick="router.navigate('/services'); return false;">Services</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#about" class="nav-link">About</a>
+                    <a href="#/about" class="nav-link" onclick="router.navigate('/about'); return false;">About</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#contact" class="nav-link">Contact</a>
+                    <a href="#/contact" class="nav-link" onclick="router.navigate('/contact'); return false;">Contact</a>
                 </li>
             </ul>
             <div class="nav-actions">
-                <a href="#login" class="nav-link ghost-link" data-open-auth="login">Portal</a>
-                <a href="#booking" class="btn btn-primary nav-cta">Book</a>
+                <a href="#/login" class="nav-link ghost-link" onclick="router.navigate('/login'); return false;">Portal</a>
+                <a href="#/booking" class="btn btn-primary nav-cta" onclick="router.navigate('/booking'); return false;">Book</a>
             </div>
             <div class="hamburger" id="hamburger">
                 <span></span>
@@ -49,6 +49,10 @@
         </div>
     </nav>
 
+    <!-- Main Content Container -->
+    <div id="main-content">
+        <!-- Home Page Content -->
+        <div id="home-content" class="page-section" style="display: block;">
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-overlay"></div>
@@ -58,7 +62,7 @@
                     <p class="hero-kicker">UrbanRide · Premium Fleet</p>
                     <h1 class="hero-title">Premium drives. <br><span class="accent">Zero friction.</span></h1>
                     <p class="hero-subtitle">Concierge delivery, instant confirmations, and clean handoffs<br>powered by your Oracle 11g automation.</p>
-                    <a href="#booking" class="btn btn-primary hero-cta">Book a car</a>
+                    <a href="#/booking" class="btn btn-primary hero-cta" onclick="router.navigate('/booking'); return false;">Book a car</a>
                 </div>
                 <div class="hero-photo">
                     <div class="photo-overlay"></div>
@@ -71,49 +75,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Auth Modal -->
-    <div class="auth-modal hidden" id="authModal">
-        <div class="auth-backdrop" id="authBackdrop"></div>
-        <div class="auth-card">
-            <button class="auth-close" id="authClose" aria-label="Close auth form">&times;</button>
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Login</button>
-                <button class="auth-tab" data-tab="signup">Sign Up</button>
-            </div>
-            <form class="auth-form" id="loginForm" data-form="login">
-                <div class="form-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" placeholder="you@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn btn-primary full-width">Login</button>
-            </form>
-            <form class="auth-form hidden" id="signupForm" data-form="signup">
-                <div class="form-group">
-                    <label for="signup-name">Full name</label>
-                    <input type="text" id="signup-name" placeholder="Jane Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-email">Email</label>
-                    <input type="email" id="signup-email" placeholder="you@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="signup-phone">Phone</label>
-                    <input type="tel" id="signup-phone" placeholder="+1 555 123 4567">
-                </div>
-                <div class="form-group">
-                    <label for="signup-password">Password</label>
-                    <input type="password" id="signup-password" placeholder="Create a strong password" required>
-                </div>
-                <button type="submit" class="btn btn-primary full-width">Create account</button>
-            </form>
-            <div class="auth-status" id="authStatus"></div>
-        </div>
-    </div>
 
     <!-- Quick Booking Section -->
     <section class="quick-booking" id="booking">
@@ -150,6 +111,10 @@
                 <div class="booking-column">
                     <h3 class="subsection-title">Available now</h3>
                     <div class="booking-list" id="availableCars"></div>
+                </div>
+                <div class="booking-column">
+                    <h3 class="subsection-title">Already reserved</h3>
+                    <div class="booking-list" id="reservedCars"></div>
                 </div>
                 <div class="booking-column">
                     <h3 class="subsection-title">Under maintenance</h3>
@@ -202,8 +167,8 @@
     <section class="fleet-preview" id="fleet">
         <div class="container">
             <h2 class="section-title">Our Fleet</h2>
-            <div class="fleet-grid">
-                <div class="fleet-card">
+                <div class="fleet-grid">
+                <div class="fleet-card" data-category="luxury" style="cursor: pointer;" onclick="event.preventDefault(); router.navigate('/category/luxury');">
                     <div class="fleet-image luxury"></div>
                     <div class="fleet-content">
                         <h3>Luxury</h3>
@@ -211,7 +176,7 @@
                         <span class="fleet-price">From $150/day</span>
                     </div>
                 </div>
-                <div class="fleet-card">
+                <div class="fleet-card" data-category="suv" style="cursor: pointer;" onclick="event.preventDefault(); router.navigate('/category/suv');">
                     <div class="fleet-image suv"></div>
                     <div class="fleet-content">
                         <h3>SUV</h3>
@@ -219,7 +184,7 @@
                         <span class="fleet-price">From $80/day</span>
                     </div>
                 </div>
-                <div class="fleet-card">
+                <div class="fleet-card" data-category="economy" style="cursor: pointer;" onclick="event.preventDefault(); router.navigate('/category/economy');">
                     <div class="fleet-image economy"></div>
                     <div class="fleet-content">
                         <h3>Economy</h3>
@@ -262,7 +227,55 @@
             </div>
         </div>
     </footer>
+        </div>
+        <!-- End Home Page Content -->
+    </div>
+    <!-- End Main Content Container -->
 
+    <!-- Auth Modal -->
+    <div class="auth-modal hidden" id="authModal">
+        <div class="auth-backdrop" id="authBackdrop"></div>
+        <div class="auth-card">
+            <button class="auth-close" id="authClose" aria-label="Close auth form">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="signup">Sign Up</button>
+            </div>
+            <form class="auth-form" id="loginForm" data-form="login">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Login</button>
+            </form>
+            <form class="auth-form hidden" id="signupForm" data-form="signup">
+                <div class="form-group">
+                    <label for="signup-name">Full name</label>
+                    <input type="text" id="signup-name" placeholder="Jane Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-phone">Phone</label>
+                    <input type="tel" id="signup-phone" placeholder="+1 555 123 4567">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Create account</button>
+            </form>
+            <div class="auth-status" id="authStatus"></div>
+        </div>
+    </div>
+
+    <script src="router.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

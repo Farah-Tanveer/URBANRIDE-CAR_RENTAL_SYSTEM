@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - URBANRIDE</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Clash+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        .about-page {
+            padding: 100px 0 60px;
+            min-height: 80vh;
+        }
+        .about-section {
+            margin-bottom: 60px;
+        }
+        .about-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        .about-section p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .category-info {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .category-info h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #5A6ED8;
+        }
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .workflow-step {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .workflow-step-number {
+            width: 60px;
+            height: 60px;
+            background: #5A6ED8;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+        .workflow-step h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .workflow-step p {
+            color: #666;
+            font-size: 16px;
+        }
+        .reliability-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .reliability-feature {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .reliability-feature h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+        .reliability-feature p {
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="brand" href="/">
+                <img src="Logo.png" alt="URBANRIDE Logo" class="logo-img">
+                <div class="brand-text">
+                    <span class="brand-name">UrbanRide</span>
+                    <span class="brand-tagline">Car Rental</span>
+                </div>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/about" class="nav-link">About</a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#login" class="nav-link ghost-link" data-open-auth="login">Portal</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- About Page -->
+    <section class="about-page">
+        <div class="container">
+            <div class="about-section">
+                <h2>About URBANRIDE</h2>
+                <p>
+                    URBANRIDE is a premium car rental management system designed to provide seamless, 
+                    reliable, and transparent vehicle rental services. Our system is built with modern 
+                    technology and Oracle database integration to ensure data integrity and real-time 
+                    availability tracking.
+                </p>
+                <p>
+                    We offer a wide range of vehicles across three main categories, each carefully 
+                    maintained and regularly serviced to ensure your safety and comfort.
+                </p>
+            </div>
+
+            <div class="about-section">
+                <h2>Our Car Categories</h2>
+                
+                <div class="category-info">
+                    <h3>Economy Cars</h3>
+                    <p>
+                        Perfect for everyday travel and budget-conscious customers. Our economy fleet 
+                        includes fuel-efficient vehicles from trusted manufacturers like Honda, Toyota, 
+                        and Suzuki. Starting from $35/day, these cars offer excellent value for money 
+                        without compromising on comfort and reliability.
+                    </p>
+                </div>
+
+                <div class="category-info">
+                    <h3>SUV Vehicles</h3>
+                    <p>
+                        Spacious and comfortable vehicles ideal for families and group travel. Our SUV 
+                        collection features 7-seater options from Hyundai, Toyota, Kia, and more. 
+                        Starting from $75/day, these vehicles provide ample space, safety features, and 
+                        are perfect for long journeys and outdoor adventures.
+                    </p>
+                </div>
+
+                <div class="category-info">
+                    <h3>Luxury Cars</h3>
+                    <p>
+                        Premium vehicles for special occasions, business travel, or when you want to 
+                        travel in style. Our luxury fleet includes top-tier brands like BMW, Mercedes-Benz, 
+                        and Audi. Starting from $150/day, these vehicles offer superior comfort, 
+                        advanced features, and an exceptional driving experience.
+                    </p>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <h2>Booking Workflow</h2>
+                <p>Our booking process is simple and straightforward:</p>
+                
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="workflow-step-number">1</div>
+                        <h3>Browse & Select</h3>
+                        <p>Browse our fleet by category or use the search feature to find available cars for your dates</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-number">2</div>
+                        <h3>View Details</h3>
+                        <p>Check complete car details including features, maintenance history, and availability</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-number">3</div>
+                        <h3>Book & Confirm</h3>
+                        <p>Select your dates, provide pickup/dropoff locations, and confirm your booking</p>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="workflow-step-number">4</div>
+                        <h3>Enjoy Your Ride</h3>
+                        <p>Pick up your vehicle and enjoy a safe, comfortable journey</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <h2>Why URBANRIDE is Reliable</h2>
+                <p>We've built our system with reliability and transparency at its core:</p>
+                
+                <div class="reliability-features">
+                    <div class="reliability-feature">
+                        <h3>🔒 Secure Database</h3>
+                        <p>
+                            All data is stored in Oracle 11g database with proper constraints, 
+                            ensuring data integrity and preventing conflicts.
+                        </p>
+                    </div>
+                    <div class="reliability-feature">
+                        <h3>🔍 Real-Time Availability</h3>
+                        <p>
+                            Our system checks availability in real-time, preventing double bookings 
+                            and ensuring accurate information.
+                        </p>
+                    </div>
+                    <div class="reliability-feature">
+                        <h3>🔧 Maintenance Transparency</h3>
+                        <p>
+                            We believe in transparency. View complete maintenance history for any 
+                            vehicle before booking, so you know exactly what you're getting.
+                        </p>
+                    </div>
+                    <div class="reliability-feature">
+                        <h3>✅ Status Tracking</h3>
+                        <p>
+                            Clear status indicators show if a car is available, reserved, or under 
+                            maintenance, with detailed reasons when unavailable.
+                        </p>
+                    </div>
+                    <div class="reliability-feature">
+                        <h3>🛡️ Blacklist Protection</h3>
+                        <p>
+                            Our system automatically prevents blacklisted customers from making 
+                            reservations, protecting our fleet and other customers.
+                        </p>
+                    </div>
+                    <div class="reliability-feature">
+                        <h3>📊 Damage Reporting</h3>
+                        <p>
+                            Complete damage history is tracked and visible, ensuring accountability 
+                            and helping you make informed decisions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-section">
+                <h2>Contact Us</h2>
+                <p>
+                    Have questions? Need assistance? Contact our customer service team:
+                </p>
+                <p>
+                    <strong>Email:</strong> info@urbanride.com<br>
+                    <strong>Phone:</strong> +1 (555) 123-4567<br>
+                    <strong>Address:</strong> 123 Car Rental St
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

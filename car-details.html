@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Details - URBANRIDE</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Clash+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        .car-details-page {
+            padding: 100px 0 60px;
+            min-height: 80vh;
+        }
+        .car-details-header {
+            margin-bottom: 40px;
+        }
+        .back-link {
+            color: #5A6ED8;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .car-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .car-image-large {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 120px;
+        }
+        .car-info {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .car-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .car-subtitle {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .car-price {
+            font-size: 36px;
+            font-weight: 700;
+            color: #5A6ED8;
+            margin-bottom: 30px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .info-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .features-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .features-list li:before {
+            content: "✓ ";
+            color: #5A6ED8;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .btn-book-large {
+            width: 100%;
+            padding: 15px;
+            background: #5A6ED8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn-book-large:hover:not(:disabled) {
+            background: #4a5bc8;
+        }
+        .btn-book-large:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .maintenance-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .maintenance-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .maintenance-date {
+            font-weight: 600;
+            color: #5A6ED8;
+        }
+        .maintenance-desc {
+            color: #666;
+            margin-top: 5px;
+        }
+        .maintenance-cost {
+            color: #1a1a1a;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="brand" href="/">
+                <img src="Logo.png" alt="URBANRIDE Logo" class="logo-img">
+                <div class="brand-text">
+                    <span class="brand-name">UrbanRide</span>
+                    <span class="brand-tagline">Car Rental</span>
+                </div>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/about" class="nav-link">About</a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#login" class="nav-link ghost-link" data-open-auth="login">Portal</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Car Details Page -->
+    <section class="car-details-page">
+        <div class="container">
+            <div class="car-details-header">
+                <a href="javascript:history.back()" class="back-link">← Back to Cars</a>
+            </div>
+            <div id="carDetailsContainer" class="loading">
+                <p>Loading car details...</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+    <script src="car-details.js"></script>
+</body>
+</html>

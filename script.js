@@ -26,9 +26,12 @@ document.querySelectorAll('.nav-link').forEach(link => {
 });
 
 // ===== API Base =====
-const API_BASE = 'http://localhost:4000';
+// API_BASE is defined in router.js which loads first
+// We rely on window.API_BASE from router.js
 
-// ===== Smooth Scroll for Navigation Links =====
+// ===== Smooth Scroll Logic Removed =====
+// Router.js now handles all navigation including scrolling to sections
+/*
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -42,6 +45,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
+*/
 
 // ===== Date Input Min Date Set to Today =====
 const today = new Date().toISOString().split('T')[0];
@@ -96,14 +100,17 @@ async function handleSearchCars() {
     const params = new URLSearchParams({ start: pickupDateValue, end: dropoffDateValue });
 
     try {
-        const [availableRes, maintenanceRes] = await Promise.all([
+        const [availableRes, reservedRes, maintenanceRes] = await Promise.all([
             fetch(`${API_BASE}/api/cars/available?${params.toString()}`),
+            fetch(`${API_BASE}/api/cars/reserved?${params.toString()}`),
             fetch(`${API_BASE}/api/cars/maintenance`)
         ]);
         const availableData = await availableRes.json();
+        const reservedData = await reservedRes.json();
         const maintenanceData = await maintenanceRes.json();
         renderBookingResults({
             available: availableData.items || [],
+            reserved: reservedData.items || [],
             maintenance: maintenanceData.items || [],
             driverRequired,
             pickupDate: pickupDateValue,
@@ -123,12 +130,14 @@ async function handleSearchCars() {
 
 function renderBookingResults(context) {
     const availableContainer = document.getElementById('availableCars');
+    const reservedContainer = document.getElementById('reservedCars');
     const maintenanceContainer = document.getElementById('maintenanceCars');
-    if (!availableContainer || !maintenanceContainer) return;
+    if (!availableContainer || !reservedContainer || !maintenanceContainer) return;
 
-    const { available, maintenance, driverRequired, pickupDate, dropoffDate, pickupLocation, dropoffLocation } = context;
+    const { available, reserved, maintenance, driverRequired, pickupDate, dropoffDate, pickupLocation, dropoffLocation } = context;
 
     availableContainer.innerHTML = '';
+    reservedContainer.innerHTML = '';
     maintenanceContainer.innerHTML = '';
 
     if (available.length === 0) {
@@ -157,6 +166,33 @@ function renderBookingResults(context) {
         });
     }
 
+    if (reserved.length === 0) {
+        reservedContainer.innerHTML = '<p class="booking-card-note">No cars are currently reserved for those dates.</p>';
+    } else {
+        reserved.forEach(row => {
+            const card = document.createElement('div');
+            card.className = 'booking-card';
+            const startDate = row.RENT_STARTDATE ? new Date(row.RENT_STARTDATE).toLocaleDateString() : '-';
+            const endDate = row.RENT_ENDDATE ? new Date(row.RENT_ENDDATE).toLocaleDateString() : '-';
+            card.innerHTML = `
+                <div>
+                    <div class="booking-card-header">
+                        ${row.DESCRIPTION || 'Vehicle ' + row.ID}
+                        <span class="badge-small" style="background: #ff6b6b;">RESERVED</span>
+                    </div>
+                    <div class="booking-card-meta">
+                        Plate ${row.PLATENUMBER || '-'} · ${row.COLOR || ''} · ${row.COMPANY || ''}
+                    </div>
+                    <p class="booking-card-note">
+                        Reserved from ${startDate} to ${endDate}
+                        ${row.CUSTOMERNAME ? `<br>Customer: ${row.CUSTOMERNAME}` : ''}
+                    </p>
+                </div>
+            `;
+            reservedContainer.appendChild(card);
+        });
+    }
+
     if (maintenance.length === 0) {
         maintenanceContainer.innerHTML = '<p class="booking-card-note">No vehicles are currently under maintenance.</p>';
     } else {
@@ -172,7 +208,7 @@ function renderBookingResults(context) {
                         Plate ${row.PLATENUMBER || '-'} · ${row.COLOR || ''}
                     </div>
                     <p class="booking-card-note">
-                        Last maintenance on ${new Date(row.MAINTENANCEDATE).toLocaleDateString()} – ${row.MAINTENANCEDESCRIPTION || 'Maintenance'}
+                        Last maintenance on ${new Date(row.MAINTENANCEDATE).toLocaleDateString()} – ${row.MaintenanceDescription || 'Maintenance'}
                     </p>
                 </div>
             `;
@@ -244,7 +280,9 @@ async function createBooking(payload) {
         if (!res.ok) {
             throw new Error(data.error || 'Booking failed');
         }
-        alert(`Booking confirmed! Reservation ID: ${data.id}. Total: ${data.totalRate}`);
+        alert(`Booking confirmed! Reservation ID: ${data.id}. Total: $${data.totalRate}`);
+        // Refresh the car list to show updated availability
+        handleSearchCars();
     } catch (err) {
         console.error(err);
         alert(err.message || 'Booking failed.');
@@ -295,6 +333,7 @@ function openAuth(tab = 'login') {
     document.body.style.overflow = 'hidden';
     switchTab(tab);
 }
+window.openAuth = openAuth;
 
 function closeAuth() {
     if (!authModal) return;
@@ -302,6 +341,7 @@ function closeAuth() {
     document.body.style.overflow = '';
     setAuthStatus('');
 }
+window.closeAuth = closeAuth;
 
 function switchTab(target) {
     authTabs.forEach(tab => {
@@ -436,3 +476,6 @@ window.addEventListener('load', () => {
 // ===== Console Welcome Message =====
 console.log('%c🚗 Welcome to URBANRIDE Car Rental System! 🚗', 'color: #5A6ED8; font-size: 16px; font-weight: bold;');
 console.log('%cBuilt with modern web technologies', 'color: #CFD0D8; font-size: 12px;');
+
+// Routing is now handled by router.js
+// Category cards and navigation links use onclick handlers with router.navigate()
