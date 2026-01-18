@@ -1,3 +1,20 @@
+    <script src="router.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Temporary polyfill/workaround for router.js to catch errors and prevent navigation issues
+        // This is a placeholder; the actual fix should be in router.js or the backend API.
+        // If the router.js is updated to handle API errors gracefully, this can be removed.
+        window.addEventListener('unhandledrejection', (event) => {
+            if (event.reason.message && event.reason.message.includes('Could not fetch cars by category')) {
+                console.error("Caught unhandled rejection related to car category fetch:", event.reason);
+                // Optionally display a user-friendly message
+                // alert('Failed to load car categories. Please try again later.');
+                event.preventDefault(); // Prevent the default unhandled rejection behavior
+            }
+        });
+    </script>
+</body>
+</html>
 \<!DOCTYPE html>
 <html lang="en">
 <head>
