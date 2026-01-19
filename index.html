@@ -14,7 +14,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <a class="brand" href="#/" onclick="router.navigate('/'); return false;">
-                <img src="Logo.png" alt="URBANRIDE Logo" class="logo-img">
+                <img src="Logo.svg" alt="URBANRIDE Logo" class="logo-img">
                 <div class="brand-text">
                     <span class="brand-name">UrbanRide</span>
                     <span class="brand-tagline">Car Rental</span>
@@ -38,7 +38,8 @@
                 </li>
             </ul>
             <div class="nav-actions">
-                <a href="#/login" class="nav-link ghost-link" onclick="router.navigate('/login'); return false;">Portal</a>
+                <a href="#/admin" class="nav-link" id="adminLink" style="display: none;" onclick="router.navigate('/admin'); return false;">Admin</a>
+                <a href="#/login" class="nav-link ghost-link" id="nav-login-btn" onclick="router.navigate('/login'); return false;">Portal</a>
                 <a href="#/booking" class="btn btn-primary nav-cta" onclick="router.navigate('/booking'); return false;">Book</a>
             </div>
             <div class="hamburger" id="hamburger">
@@ -229,6 +230,58 @@
     </footer>
         </div>
         <!-- End Home Page Content -->
+        <!-- Admin Dashboard Section -->
+        <div id="admin-content" class="page-section" style="display: none; padding-top: 100px;">
+            <div class="container">
+                <h2 class="section-title">Admin Dashboard</h2>
+                <div class="booking-form">
+                    <h3 class="subsection-title">Add New Vehicle</h3>
+                    <form id="addVehicleForm">
+                        <div class="form-group">
+                            <label>Company ID (1-10)</label>
+                            <input type="number" id="car-company" placeholder="e.g. 1 (Honda), 2 (Toyota)" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Model</label>
+                            <input type="text" id="car-model" placeholder="e.g. Civic" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Plate Number</label>
+                            <input type="text" id="car-plate" placeholder="LHR-9999" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="car-category">
+                                <option value="ECONOMY">Economy</option>
+                                <option value="SUV">SUV</option>
+                                <option value="LUXURY">Luxury</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Daily Rate ($)</label>
+                            <input type="number" id="car-rate" placeholder="e.g. 50" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Year</label>
+                            <input type="number" id="car-year" value="2024">
+                        </div>
+                        <div class="form-group">
+                            <label>Color</label>
+                            <input type="text" id="car-color" placeholder="e.g. White">
+                        </div>
+                         <div class="form-group">
+                            <label>Seating Capacity</label>
+                            <input type="number" id="car-seats" value="5">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Add Vehicle</button>
+                        </div>
+                    </form>
+                    <div id="adminStatus" style="margin-top: 1rem;"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <!-- End Main Content Container -->
 

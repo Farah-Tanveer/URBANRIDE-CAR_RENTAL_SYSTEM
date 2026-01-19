@@ -394,8 +394,18 @@ if (loginForm) {
         try {
             const res = await postJSON(`${API_BASE}/api/auth/login`, { email, password });
             localStorage.setItem('urbanride_token', res.token);
+            localStorage.setItem('urbanride_role', res.user.role || 'USER'); // Store role
             setAuthStatus('Login successful', 'success');
-            setTimeout(closeAuth, 600);
+            
+            // Check admin status
+            checkAdminStatus();
+
+            setTimeout(() => {
+                closeAuth();
+                if (res.user.role === 'ADMIN') {
+                    router.navigate('/admin');
+                }
+            }, 600);
         } catch (err) {
             setAuthStatus(err.message, 'error');
         }
@@ -417,6 +427,71 @@ if (signupForm) {
             setTimeout(() => switchTab('login'), 500);
         } catch (err) {
             setAuthStatus(err.message, 'error');
+        }
+    });
+}
+
+// ===== Admin Logic =====
+function checkAdminStatus() {
+    const role = localStorage.getItem('urbanride_role');
+    const adminLink = document.getElementById('adminLink');
+    if (adminLink) {
+        if (role === 'ADMIN') {
+            adminLink.style.display = 'block';
+        } else {
+            adminLink.style.display = 'none';
+        }
+    }
+}
+
+// Call on load
+document.addEventListener('DOMContentLoaded', checkAdminStatus);
+
+// Add Vehicle Form
+const addVehicleForm = document.getElementById('addVehicleForm');
+if (addVehicleForm) {
+    addVehicleForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('urbanride_token');
+        if (!token) {
+            alert('Please login as admin');
+            return;
+        }
+
+        const companyId = document.getElementById('car-company').value;
+        const model = document.getElementById('car-model').value;
+        const plateNumber = document.getElementById('car-plate').value;
+        const category = document.getElementById('car-category').value;
+        const dailyRate = document.getElementById('car-rate').value;
+        const year = document.getElementById('car-year').value;
+        const color = document.getElementById('car-color').value;
+        const seatingCapacity = document.getElementById('car-seats').value;
+        
+        const statusDiv = document.getElementById('adminStatus');
+        statusDiv.textContent = 'Adding vehicle...';
+        statusDiv.className = '';
+
+        try {
+            const res = await fetch(`${API_BASE}/api/cars`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    companyId, model, plateNumber, category, dailyRate, year, color, seatingCapacity
+                })
+            });
+            
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to add car');
+            
+            statusDiv.textContent = '✅ Vehicle added successfully! ID: ' + data.vehicleId;
+            statusDiv.className = 'text-success';
+            addVehicleForm.reset();
+        } catch (err) {
+            statusDiv.textContent = '❌ Error: ' + err.message;
+            statusDiv.className = 'text-error';
         }
     });
 }

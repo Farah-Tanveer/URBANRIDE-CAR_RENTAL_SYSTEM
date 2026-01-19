@@ -25,6 +25,8 @@ CREATE TABLE Vehicle (
         CHECK (Status IN ('AVAILABLE','UNAVAILABLE','MAINTENANCE')),
     SeatingCapacity NUMBER(2) NOT NULL,
     Description VARCHAR2(200),
+    Category VARCHAR2(20) DEFAULT 'ECONOMY'
+        CHECK (Category IN ('ECONOMY','SUV','LUXURY')),
 
     CONSTRAINT fk_vehicle_company
         FOREIGN KEY (Company_id) REFERENCES Company(ID)

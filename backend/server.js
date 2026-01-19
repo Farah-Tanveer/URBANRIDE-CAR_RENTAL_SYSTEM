@@ -7,7 +7,7 @@ const oracledb = require('oracledb');
 const { initPool, getConnection, closePool } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4001;
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
 
 app.use(cors({ origin: '*', credentials: false }));
@@ -37,6 +37,7 @@ app.get('/api/health', (_req, res) => {
 // Auth: sign up with improved validation
 app.post('/api/auth/signup', async (req, res) => {
   const { fullName, email, password, phone } = req.body || {};
+  let conn;
   
   // Validation
   if (!fullName || !email || !password) {
@@ -55,7 +56,7 @@ app.post('/api/auth/signup', async (req, res) => {
   }
   
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     
     // Check if email already exists in AppUser
     const existingUser = await conn.execute(
@@ -89,9 +90,9 @@ app.post('/api/auth/signup', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     
     // Insert into AppUser
-    const userResult = await conn.execute(
-      `INSERT INTO AppUser (ID, FullName, Email, PasswordHash, Phone)
-       VALUES (appuser_seq.NEXTVAL, :fullName, :email, :passwordHash, :phone)`,
+    await conn.execute(
+      `INSERT INTO AppUser (ID, FullName, Email, PasswordHash, Phone, Role)
+       VALUES (appuser_seq.NEXTVAL, :fullName, :email, :passwordHash, :phone, 'USER')`,
       {
         fullName,
         email,
@@ -137,11 +138,21 @@ app.post('/api/auth/signup', async (req, res) => {
   } catch (err) {
     console.error('Signup error:', err);
     res.status(500).json({ error: 'Signup failed', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Helper function to get or create Customer ID from AppUser
 async function getCustomerIdFromAppUser(conn, appUserId, email, fullName, phone) {
+  // Note: This function expects 'conn' to be passed in and does NOT close it
+  
   // Try to find existing Customer by email
   const customerResult = await conn.execute(
     'SELECT ID FROM Customer WHERE LOWER(Email) = LOWER(:email)',
@@ -179,13 +190,15 @@ async function getCustomerIdFromAppUser(conn, appUserId, email, fullName, phone)
 // Auth: login with improved error messages
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body || {};
+  let conn;
+
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     const result = await conn.execute(
-      'SELECT ID, FullName, Email, PasswordHash, Phone FROM AppUser WHERE LOWER(Email) = LOWER(:email)',
+      'SELECT ID, FullName, Email, PasswordHash, Phone, Role FROM AppUser WHERE LOWER(Email) = LOWER(:email)',
       { email }
     );
     const user = result.rows?.[0];
@@ -197,16 +210,27 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Incorrect password. Please try again.' });
     }
     
-    // Ensure Customer record exists
-    const customerId = await getCustomerIdFromAppUser(
-      conn,
-      user.ID,
-      user.EMAIL,
-      user.FULLNAME,
-      user.PHONE
-    );
+    // Ensure Customer record exists (only if not admin, but let's just try anyway)
+    let customerId = null;
+    try {
+        customerId = await getCustomerIdFromAppUser(
+          conn,
+          user.ID,
+          user.EMAIL,
+          user.FULLNAME,
+          user.PHONE
+        );
+    } catch (e) {
+        console.log('Could not link customer (might be pure admin):', e.message);
+    }
     
-    const token = jwt.sign({ sub: user.ID, email: user.EMAIL, customerId }, JWT_SECRET, { expiresIn: '2h' });
+    const token = jwt.sign({ 
+        sub: user.ID, 
+        email: user.EMAIL, 
+        role: user.ROLE,
+        customerId 
+    }, JWT_SECRET, { expiresIn: '2h' });
+
     res.json({
       token,
       user: {
@@ -214,19 +238,29 @@ app.post('/api/auth/login', async (req, res) => {
         fullName: user.FULLNAME,
         email: user.EMAIL,
         phone: user.PHONE,
+        role: user.ROLE,
         customerId
       }
     });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Fleet sample endpoint
 app.get('/api/fleet', async (_req, res) => {
+  let conn;
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     const result = await conn.execute(
       `SELECT v.ID, v.Description, v.Color, v.DailyRate, v.Status, pn.PlateNumber, c.Name AS Company
        FROM Vehicle v
@@ -238,23 +272,35 @@ app.get('/api/fleet', async (_req, res) => {
   } catch (err) {
     console.error('Fleet fetch error:', err);
     res.status(500).json({ error: 'Could not fetch fleet', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Available cars between date range
 app.get('/api/cars/available', async (req, res) => {
   const { start, end } = req.query;
+  let conn;
+
   if (!start || !end) {
     return res.status(400).json({ error: 'start and end (YYYY-MM-DD) are required' });
   }
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     const result = await conn.execute(
       `SELECT v.ID,
               v.Description,
               v.Color,
               v.DailyRate,
               v.Status,
+              v.SeatingCapacity,
+              v.Category,
               pn.PlateNumber AS PLATENUMBER,
               c.Name AS Company,
               NVL(d.damage_count, 0) AS DamageCount
@@ -266,7 +312,7 @@ app.get('/api/cars/available', async (req, res) => {
          FROM Damage_Report
          GROUP BY Vehicle_id
        ) d ON d.Vehicle_id = v.ID
-       WHERE UPPER(v.Status) = 'AVAILABLE'
+       WHERE (UPPER(v.Status) = 'AVAILABLE' OR UPPER(v.Status) = 'MAINTENANCE' OR UPPER(v.Status) = 'RESERVED')
          AND v.ID NOT IN (
            SELECT r.Vehicle_id
            FROM Reservation r
@@ -283,13 +329,22 @@ app.get('/api/cars/available', async (req, res) => {
   } catch (err) {
     console.error('Available cars error:', err);
     res.status(500).json({ error: 'Could not fetch available cars', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Cars with maintenance records - also show cars with Status = 'MAINTENANCE'
 app.get('/api/cars/maintenance', async (_req, res) => {
+  let conn;
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     // Get cars that are currently under maintenance OR have recent maintenance records
     const result = await conn.execute(
       `SELECT DISTINCT v.ID,
@@ -311,14 +366,23 @@ app.get('/api/cars/maintenance', async (_req, res) => {
   } catch (err) {
     console.error('Maintenance cars error:', err);
     res.status(500).json({ error: 'Could not fetch maintenance cars', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Reserved cars (currently reserved)
 app.get('/api/cars/reserved', async (req, res) => {
   const { start, end } = req.query;
+  let conn;
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     let query = `SELECT v.ID,
               v.Description,
               v.Color,
@@ -352,14 +416,23 @@ app.get('/api/cars/reserved', async (req, res) => {
   } catch (err) {
     console.error('Reserved cars error:', err);
     res.status(500).json({ error: 'Could not fetch reserved cars', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Damage history for a specific car
 app.get('/api/cars/:id/damage-history', async (req, res) => {
   const { id } = req.params;
+  let conn;
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     const result = await conn.execute(
       `SELECT ID,
               SeverityLevel,
@@ -375,14 +448,22 @@ app.get('/api/cars/:id/damage-history', async (req, res) => {
   } catch (err) {
     console.error('Damage history error:', err);
     res.status(500).json({ error: 'Could not fetch damage history', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
 // Get cars by category (FEATURE 1 & 3)
-// Works even if Category field doesn't exist - infers from DailyRate
 app.get('/api/cars/category/:category', async (req, res) => {
   const { category } = req.params;
   const { includeUnavailable } = req.query;
+  let conn;
   
   // Normalize category to lowercase
   const categoryLower = category.toLowerCase();
@@ -391,7 +472,7 @@ app.get('/api/cars/category/:category', async (req, res) => {
   }
   
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     
     // Define category ranges based on DailyRate (in case Category field doesn't exist)
     let rateCondition = '1=1'; // Default true for 'all'
@@ -424,6 +505,7 @@ app.get('/api/cars/category/:category', async (req, res) => {
               CASE 
                 WHEN UPPER(v.Status) = 'MAINTENANCE' THEN 'Under Maintenance'
                 WHEN UPPER(v.Status) = 'RESERVED' THEN 'Reserved'
+                WHEN UPPER(v.Status) = 'UNAVAILABLE' THEN 'Reserved'
                 WHEN UPPER(v.Status) = 'AVAILABLE' THEN 'Available'
                 ELSE 'Unavailable'
               END AS StatusLabel
@@ -439,13 +521,13 @@ app.get('/api/cars/category/:category', async (req, res) => {
 
     const queryParams = {};
     if (categoryLower !== 'all') {
-       query += ` AND (v.Category = :categoryUpper OR (v.Category IS NULL AND ${rateCondition}))`;
+       query += ` AND (UPPER(v.Category) = :categoryUpper OR (v.Category IS NULL AND ${rateCondition}))`;
        queryParams.categoryUpper = categoryLower.toUpperCase();
     }
     
     // Filter out unavailable unless requested
     if (!includeUnavailable || includeUnavailable === 'false') {
-      query += ` AND UPPER(v.Status) IN ('AVAILABLE', 'MAINTENANCE', 'RESERVED')`;
+      query += ` AND UPPER(v.Status) IN ('AVAILABLE', 'MAINTENANCE', 'RESERVED', 'UNAVAILABLE')`;
     }
     
     query += ` ORDER BY v.DailyRate`;
@@ -455,8 +537,13 @@ app.get('/api/cars/category/:category', async (req, res) => {
   } catch (err) {
     console.error('Category cars error:', err);
     // If Category column doesn't exist, try without it
+    // Note: We use the same 'conn' object, assuming it's still valid but the query failed
     try {
-      const conn = await getConnection();
+      if (!conn) {
+          // Reconnect if somehow lost, though unlikely in this flow
+          conn = await getConnection();
+      }
+      
       let rateCondition = '1=1';
       if (categoryLower === 'economy') {
         rateCondition = 'v.DailyRate <= 50';
@@ -497,12 +584,85 @@ app.get('/api/cars/category/:category', async (req, res) => {
        ) d ON d.Vehicle_id = v.ID
        WHERE ${rateCondition}
        ORDER BY v.DailyRate`;
-      
-      const result = await conn.execute(fallbackQuery);
-      res.json({ items: result.rows || [], category: categoryLower });
+
+       const fallbackResult = await conn.execute(fallbackQuery);
+       res.json({ items: fallbackResult.rows || [], category: categoryLower });
     } catch (fallbackErr) {
-      console.error('Fallback category query error:', fallbackErr);
-      res.status(500).json({ error: 'Could not fetch cars by category', detail: fallbackErr.message });
+        console.error('Fallback Category cars error:', fallbackErr);
+        res.status(500).json({ error: 'Could not fetch cars by category', detail: fallbackErr.message });
+    }
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
+  }
+});
+
+// ADMIN: Add new vehicle
+app.post('/api/cars', requireAuth, async (req, res) => {
+  // Check if admin
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Access denied. Admin only.' });
+  }
+
+  const { companyId, model, year, color, dailyRate, category, seatingCapacity, description, plateNumber } = req.body;
+
+  if (!companyId || !model || !dailyRate || !category || !plateNumber) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  let conn;
+  try {
+    conn = await getConnection();
+    
+    // 1. Insert Vehicle
+    // We need a new Vehicle ID. 
+    // Ideally we should have a sequence for Vehicle ID, but let's check max ID first or use a sequence if DDL defined one.
+    // DDL doesn't show sequence for Vehicle, assuming manual or trigger? 
+    // DML uses manual IDs. Let's find max ID + 1.
+    
+    const maxIdResult = await conn.execute('SELECT MAX(ID) AS MAXID FROM Vehicle');
+    const newVehicleId = (maxIdResult.rows[0].MAXID || 0) + 1;
+    
+    await conn.execute(
+      `INSERT INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
+       VALUES (:id, :companyId, 0, :color, SYSDATE, :dailyRate, 'AVAILABLE', :seating, :desc, :category)`,
+      {
+        id: newVehicleId,
+        companyId,
+        color: color || 'White',
+        dailyRate,
+        seating: seatingCapacity || 5,
+        desc: description || model,
+        category: category.toUpperCase()
+      }
+    );
+
+    // 2. Insert PlateNumber
+    await conn.execute(
+      `INSERT INTO PlateNumber (PlateNumber, Vehicle_id, Model, Year)
+       VALUES (:plate, :vid, :model, :year)`,
+      {
+        plate: plateNumber,
+        vid: newVehicleId,
+        model,
+        year: year || new Date().getFullYear()
+      }
+    );
+
+    await conn.commit();
+    res.status(201).json({ message: 'Vehicle added successfully', vehicleId: newVehicleId });
+
+  } catch (err) {
+    console.error('Add car error:', err);
+    res.status(500).json({ error: 'Failed to add car', detail: err.message });
+  } finally {
+    if (conn) {
+      try { await conn.close(); } catch (e) {}
     }
   }
 });
@@ -510,8 +670,9 @@ app.get('/api/cars/category/:category', async (req, res) => {
 // Get single car details (FEATURE 2 & 3)
 app.get('/api/cars/:id', async (req, res) => {
   const { id } = req.params;
+  let conn;
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
     
     // Get car details
     const carResult = await conn.execute(
@@ -572,8 +733,8 @@ app.get('/api/cars/:id', async (req, res) => {
       `SELECT Rent_StartDate, Rent_EndDate, Status
        FROM Reservation
        WHERE Vehicle_id = :id
-         AND Status = 'RESERVED'
-         AND Rent_StartDate >= SYSDATE
+       AND Status = 'RESERVED'
+       AND Rent_StartDate >= SYSDATE
        ORDER BY Rent_StartDate
        FETCH FIRST 3 ROWS ONLY`,
       { id }
@@ -588,6 +749,14 @@ app.get('/api/cars/:id', async (req, res) => {
   } catch (err) {
     console.error('Car details error:', err);
     res.status(500).json({ error: 'Could not fetch car details', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 
@@ -601,13 +770,14 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
     dropoffDate,
     driverRequired
   } = req.body || {};
+  let conn;
 
   if (!vehicleId || !pickupDate || !dropoffDate) {
     return res.status(400).json({ error: 'vehicleId, pickupDate and dropoffDate are required' });
   }
 
   try {
-    const conn = await getConnection();
+    conn = await getConnection();
 
     // Get user's Customer ID
     const appUserId = req.user.sub;
@@ -730,7 +900,7 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
     const staffId = staffResult.rows?.[0]?.ID || 1;
 
     // Insert reservation
-    const insertResult = await conn.execute(
+    await conn.execute(
       `INSERT INTO Reservation (
           ID,
           Vehicle_id,
@@ -774,9 +944,9 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
     const bookingResult = await conn.execute(
       `SELECT ID FROM Reservation 
        WHERE Vehicle_id = :vehicleId 
-         AND Customer_id = :customerId
-         AND Rent_StartDate = TO_DATE(:start, 'YYYY-MM-DD')
-         AND Rent_EndDate = TO_DATE(:end, 'YYYY-MM-DD')
+       AND Customer_id = :customerId
+       AND Rent_StartDate = TO_DATE(:start, 'YYYY-MM-DD')
+       AND Rent_EndDate = TO_DATE(:end, 'YYYY-MM-DD')
        ORDER BY ID DESC
        FETCH FIRST 1 ROWS ONLY`,
       { vehicleId, customerId, start: pickupDate, end: dropoffDate }
@@ -797,6 +967,14 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('Create booking error:', err);
     res.status(500).json({ error: 'Could not create booking', detail: err.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error closing connection', err);
+      }
+    }
   }
 });
 

@@ -79,10 +79,10 @@ INSERT ALL
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (4, 9, 20000, 'Blue', SYSDATE-30, 42, 'AVAILABLE', 5, 'Nissan Sunny', 'ECONOMY')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
-    VALUES (5, 10, 18000, 'Black', SYSDATE-80, 38, 'RESERVED', 5, 'Ford Fiesta', 'ECONOMY')
+    VALUES (5, 10, 18000, 'Black', SYSDATE-80, 38, 'UNAVAILABLE', 5, 'Ford Fiesta', 'ECONOMY')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (6, 3, 22000, 'Grey', SYSDATE-120, 40, 'MAINTENANCE', 5, 'Hyundai Accent', 'ECONOMY')
-SELECT * FROM dual;
+    SELECT * FROM dual;
 
 -- SUV CARS (5+ cars)
 INSERT ALL
@@ -93,12 +93,12 @@ INSERT ALL
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (9, 4, 18000, 'Silver', SYSDATE-60, 75, 'AVAILABLE', 7, 'Kia Sportage', 'SUV')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
-    VALUES (10, 9, 14000, 'Blue', SYSDATE-40, 82, 'RESERVED', 7, 'Nissan X-Trail', 'SUV')
+    VALUES (10, 9, 14000, 'Blue', SYSDATE-40, 82, 'UNAVAILABLE', 7, 'Nissan X-Trail', 'SUV')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (11, 10, 16000, 'Red', SYSDATE-70, 78, 'AVAILABLE', 7, 'Ford Escape', 'SUV')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (12, 1, 19000, 'Grey', SYSDATE-110, 80, 'MAINTENANCE', 7, 'Honda CR-V', 'SUV')
-SELECT * FROM dual;
+    SELECT * FROM dual;
 
 -- LUXURY CARS (5+ cars)
 INSERT ALL
@@ -109,7 +109,7 @@ INSERT ALL
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (15, 8, 5000, 'White', SYSDATE-5, 170, 'AVAILABLE', 5, 'Audi A4', 'LUXURY')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
-    VALUES (16, 6, 12000, 'Blue', SYSDATE-25, 200, 'RESERVED', 5, 'BMW 5 Series', 'LUXURY')
+    VALUES (16, 6, 12000, 'Blue', SYSDATE-25, 200, 'UNAVAILABLE', 5, 'BMW 5 Series', 'LUXURY')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)
     VALUES (17, 7, 9000, 'Black', SYSDATE-15, 190, 'AVAILABLE', 5, 'Mercedes-Benz E-Class', 'LUXURY')
     INTO Vehicle (ID, Company_id, CurrentMileage, Color, LastServiceDate, DailyRate, Status, SeatingCapacity, Description, Category)

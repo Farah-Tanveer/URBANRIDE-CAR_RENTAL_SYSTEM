@@ -165,12 +165,50 @@ router.route('/signup', () => {
     else router.navigate('/');
 });
 
+// Admin route
+router.route('/admin', () => {
+    const role = localStorage.getItem('urbanride_role');
+    if (role !== 'ADMIN') {
+        router.navigate('/login');
+        return;
+    }
+    showAdminPage();
+});
+
 // ===== Page Rendering Functions =====
+
+function showAdminPage() {
+    const container = document.getElementById('main-content');
+    if (!container) return;
+
+    // Hide home content
+    const homeContent = document.getElementById('home-content');
+    if (homeContent) {
+        homeContent.style.display = 'none';
+    }
+
+    // Remove any existing dynamic content
+    const existingDynamic = container.querySelectorAll('.about-page, .cars-page, .car-details-page, .fleet-page');
+    existingDynamic.forEach(el => el.remove());
+
+    // Show admin section (which is part of index.html but hidden)
+    const adminContent = document.getElementById('admin-content');
+    if (adminContent) {
+        adminContent.style.display = 'block';
+    }
+    window.scrollTo(0, 0);
+}
 
 function showHomePage() {
     const container = document.getElementById('main-content');
     if (!container) return;
     
+    // Hide admin content
+    const adminContent = document.getElementById('admin-content');
+    if (adminContent) {
+        adminContent.style.display = 'none';
+    }
+
     // Remove any dynamically loaded content
     const existingDynamic = container.querySelector('.about-page, .cars-page, .car-details-page, .fleet-page');
     if (existingDynamic) {
@@ -193,6 +231,12 @@ function showAboutPage() {
     const homeContent = document.getElementById('home-content');
     if (homeContent) {
         homeContent.style.display = 'none';
+    }
+    
+    // Hide admin content
+    const adminContent = document.getElementById('admin-content');
+    if (adminContent) {
+        adminContent.style.display = 'none';
     }
     
     // Remove any existing dynamic content
@@ -359,6 +403,12 @@ function showFleetPage() {
     if (homeContent) {
         homeContent.style.display = 'none';
     }
+
+    // Hide admin content
+    const adminContent = document.getElementById('admin-content');
+    if (adminContent) {
+        adminContent.style.display = 'none';
+    }
     
     // Remove any existing dynamic content
     const existingDynamic = container.querySelectorAll('.about-page, .cars-page, .car-details-page, .fleet-page');
@@ -411,6 +461,12 @@ async function showCarsPage(category) {
     const homeContent = document.getElementById('home-content');
     if (homeContent) {
         homeContent.style.display = 'none';
+    }
+
+    // Hide admin content
+    const adminContent = document.getElementById('admin-content');
+    if (adminContent) {
+        adminContent.style.display = 'none';
     }
     
     // Remove any existing dynamic content
