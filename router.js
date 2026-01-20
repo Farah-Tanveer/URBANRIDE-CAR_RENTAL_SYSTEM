@@ -1,5 +1,5 @@
 // ===== Hash-Based Router for Static File Server =====
-window.API_BASE = 'http://localhost:4001';
+window.API_BASE = 'http://localhost:4000';
 const API_BASE = window.API_BASE;
 
 class HashRouter {
@@ -152,6 +152,11 @@ router.route('/cars/:category', (params) => {
 // Car details route
 router.route('/car/:id', (params) => {
     showCarDetailsPage(params.id);
+});
+
+// Booking confirmation route
+router.route('/confirmation', () => {
+    showConfirmationPage();
 });
 
 // Auth routes
@@ -532,19 +537,76 @@ async function showCarsPage(category) {
             grid.appendChild(card);
         });
     } catch (err) {
-        console.error(err);
+        console.warn('Backend unavailable, loading offline demo cars.', err);
         const carsContainer = document.getElementById('carsContainer');
         if (carsContainer) {
-            carsContainer.innerHTML = `
-                <div class="empty-state">
-                    <p>Error loading cars: ${err.message}</p>
-                    <p>Please try again later.</p>
-                </div>
-            `;
+            const mockCars = [
+                // ECONOMY (6+)
+                { ID: 101, DESCRIPTION: 'Toyota Corolla', COMPANY: 'Toyota', MODEL: 'Corolla', YEAR: 2020, DAILYRATE: 45, CATEGORY: 'ECONOMY', COLOR: 'White', SEATINGCAPACITY: 5, CURRENTMILEAGE: 32000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'ABC-123' },
+                { ID: 102, DESCRIPTION: 'Ford Fiesta', COMPANY: 'Ford', MODEL: 'Fiesta', YEAR: 2019, DAILYRATE: 40, CATEGORY: 'ECONOMY', COLOR: 'Blue', SEATINGCAPACITY: 5, CURRENTMILEAGE: 41000, STATUS: 'MAINTENANCE', STATUSLABEL: 'Maintenance', PLATENUMBER: 'XYZ-456' },
+                { ID: 103, DESCRIPTION: 'Suzuki Swift', COMPANY: 'Suzuki', MODEL: 'Swift', YEAR: 2018, DAILYRATE: 38, CATEGORY: 'ECONOMY', COLOR: 'Red', SEATINGCAPACITY: 5, CURRENTMILEAGE: 50000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'ABC-789' },
+                { ID: 104, DESCRIPTION: 'Nissan Sunny', COMPANY: 'Nissan', MODEL: 'Sunny', YEAR: 2017, DAILYRATE: 36, CATEGORY: 'ECONOMY', COLOR: 'Silver', SEATINGCAPACITY: 5, CURRENTMILEAGE: 60000, STATUS: 'RESERVED', STATUSLABEL: 'Reserved', PLATENUMBER: 'ECO-104' },
+                { ID: 105, DESCRIPTION: 'Hyundai Accent', COMPANY: 'Hyundai', MODEL: 'Accent', YEAR: 2019, DAILYRATE: 39, CATEGORY: 'ECONOMY', COLOR: 'Grey', SEATINGCAPACITY: 5, CURRENTMILEAGE: 45000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'ECO-105' },
+                { ID: 106, DESCRIPTION: 'Honda City', COMPANY: 'Honda', MODEL: 'City', YEAR: 2020, DAILYRATE: 44, CATEGORY: 'ECONOMY', COLOR: 'Black', SEATINGCAPACITY: 5, CURRENTMILEAGE: 35000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'ECO-106' },
+                // SUV (6+)
+                { ID: 201, DESCRIPTION: 'Honda CR-V', COMPANY: 'Honda', MODEL: 'CR-V', YEAR: 2021, DAILYRATE: 70, CATEGORY: 'SUV', COLOR: 'Black', SEATINGCAPACITY: 5, CURRENTMILEAGE: 22000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'SUV-001' },
+                { ID: 202, DESCRIPTION: 'Hyundai Tucson', COMPANY: 'Hyundai', MODEL: 'Tucson', YEAR: 2020, DAILYRATE: 68, CATEGORY: 'SUV', COLOR: 'Silver', SEATINGCAPACITY: 5, CURRENTMILEAGE: 28000, STATUS: 'RESERVED', STATUSLABEL: 'Reserved', PLATENUMBER: 'SUV-002' },
+                { ID: 203, DESCRIPTION: 'Ford Escape', COMPANY: 'Ford', MODEL: 'Escape', YEAR: 2020, DAILYRATE: 65, CATEGORY: 'SUV', COLOR: 'Green', SEATINGCAPACITY: 5, CURRENTMILEAGE: 30000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'SUV-003' },
+                { ID: 204, DESCRIPTION: 'Toyota RAV4', COMPANY: 'Toyota', MODEL: 'RAV4', YEAR: 2019, DAILYRATE: 72, CATEGORY: 'SUV', COLOR: 'White', SEATINGCAPACITY: 5, CURRENTMILEAGE: 27000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'SUV-004' },
+                { ID: 205, DESCRIPTION: 'Kia Sportage', COMPANY: 'Kia', MODEL: 'Sportage', YEAR: 2020, DAILYRATE: 69, CATEGORY: 'SUV', COLOR: 'Red', SEATINGCAPACITY: 5, CURRENTMILEAGE: 25000, STATUS: 'MAINTENANCE', STATUSLABEL: 'Maintenance', PLATENUMBER: 'SUV-005' },
+                { ID: 206, DESCRIPTION: 'Nissan X-Trail', COMPANY: 'Nissan', MODEL: 'X-Trail', YEAR: 2018, DAILYRATE: 64, CATEGORY: 'SUV', COLOR: 'Blue', SEATINGCAPACITY: 5, CURRENTMILEAGE: 40000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'SUV-006' },
+                // LUXURY (6+)
+                { ID: 301, DESCRIPTION: 'BMW 3 Series', COMPANY: 'BMW', MODEL: '3 Series', YEAR: 2022, DAILYRATE: 120, CATEGORY: 'LUXURY', COLOR: 'Gray', SEATINGCAPACITY: 5, CURRENTMILEAGE: 8000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'LUX-100' },
+                { ID: 302, DESCRIPTION: 'Mercedes C-Class', COMPANY: 'Mercedes', MODEL: 'C-Class', YEAR: 2021, DAILYRATE: 130, CATEGORY: 'LUXURY', COLOR: 'White', SEATINGCAPACITY: 5, CURRENTMILEAGE: 15000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'LUX-101' },
+                { ID: 303, DESCRIPTION: 'Audi A4', COMPANY: 'Audi', MODEL: 'A4', YEAR: 2021, DAILYRATE: 115, CATEGORY: 'LUXURY', COLOR: 'Blue', SEATINGCAPACITY: 5, CURRENTMILEAGE: 12000, STATUS: 'MAINTENANCE', STATUSLABEL: 'Maintenance', PLATENUMBER: 'LUX-102' },
+                { ID: 304, DESCRIPTION: 'BMW 5 Series', COMPANY: 'BMW', MODEL: '5 Series', YEAR: 2021, DAILYRATE: 140, CATEGORY: 'LUXURY', COLOR: 'Black', SEATINGCAPACITY: 5, CURRENTMILEAGE: 16000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'LUX-103' },
+                { ID: 305, DESCRIPTION: 'Mercedes E-Class', COMPANY: 'Mercedes', MODEL: 'E-Class', YEAR: 2020, DAILYRATE: 150, CATEGORY: 'LUXURY', COLOR: 'Silver', SEATINGCAPACITY: 5, CURRENTMILEAGE: 20000, STATUS: 'RESERVED', STATUSLABEL: 'Reserved', PLATENUMBER: 'LUX-104' },
+                { ID: 306, DESCRIPTION: 'Audi A6', COMPANY: 'Audi', MODEL: 'A6', YEAR: 2019, DAILYRATE: 135, CATEGORY: 'LUXURY', COLOR: 'White', SEATINGCAPACITY: 5, CURRENTMILEAGE: 23000, STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'LUX-105' }
+            ];
+            const filtered = mockCars.filter(c => (c.CATEGORY || '').toLowerCase() === (category || '').toLowerCase());
+            if (filtered.length === 0) {
+                carsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <p>No ${category} cars available in offline mode.</p>
+                        <p>Try another category.</p>
+                    </div>
+                `;
+                return;
+            }
+            carsContainer.innerHTML = '<div class="cars-grid"></div>';
+            const grid = carsContainer.querySelector('.cars-grid');
+            filtered.forEach(car => {
+                const card = createCarCard(car);
+                grid.appendChild(card);
+            });
         }
     }
 }
 
+function getCarImagePath(car) {
+  const desc = (car.DESCRIPTION || '').toLowerCase();
+  const company = (car.COMPANY || '').toLowerCase();
+  const model = (car.MODEL || '').toLowerCase();
+  if (desc.includes('honda city') || model.includes('city')) return 'Images/honda_city.jpg';
+  if (desc.includes('toyota corolla') || model.includes('corolla')) return 'Images/toyota_corola.jpg';
+  if (desc.includes('suzuki swift') || model.includes('swift')) return 'Images/susuk_iswift_altomehran.jpg';
+  if (desc.includes('nissan sunny') || model.includes('sunny')) return 'Images/nissan_sunny.jpg';
+  if (desc.includes('ford fiesta') || model.includes('fiesta')) return 'Images/ford_fiesta.jpg';
+  if (desc.includes('hyundai accent') || model.includes('accent')) return 'Images/hyundai_ascent.jpg';
+  if (desc.includes('hyundai tucson') || model.includes('tucson')) return 'Images/hyundai_tucson.jpg';
+  if (desc.includes('rav4') || model.includes('rav4')) return 'Images/toyota_rav4.jpg';
+  if (desc.includes('sportage') || model.includes('sportage')) return 'Images/kia_sportage.jpg';
+  if (desc.includes('x-trail') || desc.includes('xtrail') || model.includes('x-trail') || model.includes('xtrail')) return 'Images/nissan_xtrail.jpg';
+  if (desc.includes('escape') || model.includes('escape')) return 'Images/ford_escape.jpg';
+  if (desc.includes('cr-v') || model.includes('cr-v') || model.includes('crv')) return 'Images/honda_crv.jpg';
+  if (desc.includes('bmw 3') || model.includes('3 series')) return 'Images/bmw_m3_series.jpg';
+  if (desc.includes('bmw 5') || model.includes('5 series')) return 'Images/m5.jpg';
+  if (desc.includes('c-class') || model.includes('c-class')) return 'Images/mersidies_cclass.jpg';
+  if (desc.includes('e-class') || model.includes('e-class')) return 'Images/mercidies_eclass.jpg';
+  if (desc.includes('audi a4') || model.includes('a4')) return 'Images/audi_a4.jpg';
+  if (desc.includes('audi a6') || model.includes('a6')) return 'Images/audi_a6.jpg';
+  return 'Images/kia_sportage.jpg';
+}
 function createCarCard(car) {
     const card = document.createElement('div');
     card.className = 'car-card';
@@ -555,7 +617,7 @@ function createCarCard(car) {
     const isAvailable = car.STATUS === 'AVAILABLE';
     
     card.innerHTML = `
-        <div class="car-image">🚗</div>
+        <div class="car-image"><img src="${getCarImagePath(car)}" alt="${car.DESCRIPTION || 'Vehicle ' + car.ID}"></div>
         <div class="car-content">
             <div class="car-header">
                 <h3 class="car-title">${car.DESCRIPTION || 'Vehicle ' + car.ID}</h3>
@@ -568,7 +630,7 @@ function createCarCard(car) {
             <div class="car-rate">$${car.DAILYRATE || 0}/day</div>
             <div class="car-actions">
                 <button class="btn-view" onclick="router.navigate('/car/${car.ID}')">View Details</button>
-                <button class="btn-book" ${!isAvailable ? 'disabled' : ''} onclick="bookCarFromList(${car.ID})" ${!isAvailable ? 'title="Car is not available"' : ''}>
+                <button class="btn-book" ${!isAvailable ? 'disabled' : ''} onclick="bookCarFromList(${car.ID})" ${!isAvailable ? 'title=\"Car is not available\"' : ''}>
                     ${isAvailable ? 'Book Now' : 'Unavailable'}
                 </button>
             </div>
@@ -645,7 +707,7 @@ async function showCarDetailsPage(carId) {
 
         container.innerHTML = `
             <div class="car-details-grid">
-                <div class="car-image-large">🚗</div>
+                <div class="car-image-large"><img src="${getCarImagePath(car)}" alt="${car.DESCRIPTION || 'Vehicle ' + car.ID}"></div>
                 <div class="car-info">
                     <h1 class="car-title">${car.DESCRIPTION || 'Vehicle ' + car.ID}</h1>
                     <p class="car-subtitle">${car.COMPANY || ''} · ${car.MODEL || ''} ${car.YEAR || ''}</p>
@@ -696,7 +758,7 @@ async function showCarDetailsPage(carId) {
                         </div>
                     ` : ''}
 
-                    <button class="btn-book-large" ${!isAvailable ? 'disabled' : ''} onclick="bookCarFromList(${car.ID})" ${!isAvailable ? 'title="Car is not available"' : ''}>
+                    <button class="btn-book-large" ${!isAvailable ? 'disabled' : ''} onclick="bookCarFromList(${car.ID})" ${!isAvailable ? 'title=\"Car is not available\"' : ''}>
                         ${isAvailable ? 'Book This Car' : 'Car Not Available'}
                     </button>
                 </div>
@@ -733,13 +795,62 @@ async function showCarDetailsPage(carId) {
             ` : ''}
         `;
     } catch (err) {
-        console.error(err);
+        console.warn('Backend unavailable, showing offline demo car details.', err);
         const container = document.getElementById('carDetailsContainer');
         if (container) {
+            const mockCar = {
+                ID: parseInt(carId), DESCRIPTION: 'Toyota Corolla', COMPANY: 'Toyota', MODEL: 'Corolla', YEAR: 2020,
+                DAILYRATE: 45, CATEGORY: 'ECONOMY', COLOR: 'White', SEATINGCAPACITY: 5, CURRENTMILEAGE: 32000,
+                STATUS: 'AVAILABLE', STATUSLABEL: 'Available', PLATENUMBER: 'ABC-123', LASTSERVICEDATE: new Date().toISOString()
+            };
+            const maintenanceHistory = [
+                { MAINTENANCEDATE: new Date().toISOString(), DESCRIPTION: 'Oil Change', COST: 80 },
+                { MAINTENANCEDATE: new Date(Date.now()-86400000*30).toISOString(), DESCRIPTION: 'Tire Rotation', COST: 50 }
+            ];
+            const upcomingReservations = [];
+            const isAvailable = true;
             container.innerHTML = `
-                <div class="empty-state">
-                    <p>Error loading car details: ${err.message}</p>
-                    <p>Please try again later.</p>
+                <div class="car-details-grid">
+                    <div class="car-image-large"><img src="${getCarImagePath(mockCar)}" alt="${mockCar.DESCRIPTION}"></div>
+                    <div class="car-info">
+                        <h1 class="car-title">${mockCar.DESCRIPTION}</h1>
+                        <p class="car-subtitle">${mockCar.COMPANY} · ${mockCar.MODEL} ${mockCar.YEAR}</p>
+                        <div class="car-price">$${mockCar.DAILYRATE}/day</div>
+                        <div class="info-grid">
+                            <div class="info-item"><div class="info-label">Category</div><div class="info-value">${mockCar.CATEGORY}</div></div>
+                            <div class="info-item"><div class="info-label">Color</div><div class="info-value">${mockCar.COLOR}</div></div>
+                            <div class="info-item"><div class="info-label">Seating Capacity</div><div class="info-value">${mockCar.SEATINGCAPACITY} seats</div></div>
+                            <div class="info-item"><div class="info-label">Mileage</div><div class="info-value">${mockCar.CURRENTMILEAGE.toLocaleString()} km</div></div>
+                            <div class="info-item"><div class="info-label">Status</div><div class="info-value">${mockCar.STATUSLABEL}</div></div>
+                            <div class="info-item"><div class="info-label">Plate Number</div><div class="info-value">${mockCar.PLATENUMBER}</div></div>
+                        </div>
+                        <h3 style="margin-top: 30px; margin-bottom: 15px;">Features</h3>
+                        <ul class="features-list">
+                            <li>Air Conditioning</li>
+                            <li>GPS Navigation</li>
+                            <li>Airbags</li>
+                            <li>Standard Audio</li>
+                            <li>Comfortable Seating</li>
+                            <li>Bluetooth Connectivity</li>
+                            <li>USB Charging Ports</li>
+                        </ul>
+                        <div class="info-item" style="margin-top: 20px;">
+                            <div class="info-label">Last Service Date</div>
+                            <div class="info-value">${new Date(mockCar.LASTSERVICEDATE).toLocaleDateString()}</div>
+                        </div>
+                        <button class="btn-book-large" onclick="bookCarFromList(${mockCar.ID})">Book This Car</button>
+                    </div>
+                </div>
+                <div class="maintenance-section">
+                    <h2 class="section-title">Maintenance History (Transparency Feature)</h2>
+                    <p style="color: #CFD0D8; margin-bottom: 20px;">We believe in transparency. Here's the complete maintenance history of this vehicle:</p>
+                    ${maintenanceHistory.map(m => `
+                        <div class="maintenance-item">
+                            <div class="maintenance-date">${new Date(m.MAINTENANCEDATE).toLocaleDateString()}</div>
+                            <div class="maintenance-desc">${m.DESCRIPTION}</div>
+                            <div class="maintenance-cost">Cost: $${m.COST}</div>
+                        </div>
+                    `).join('')}
                 </div>
             `;
         }
@@ -748,3 +859,48 @@ async function showCarDetailsPage(carId) {
 
 // Make router globally available
 window.router = router;
+
+function showConfirmationPage() {
+    const container = document.getElementById('main-content');
+    if (!container) return;
+    // Hide home and admin
+    const homeContent = document.getElementById('home-content');
+    if (homeContent) homeContent.style.display = 'none';
+    const adminContent = document.getElementById('admin-content');
+    if (adminContent) adminContent.style.display = 'none';
+    // Remove other dynamic content
+    const existingDynamic = container.querySelectorAll('.about-page, .cars-page, .car-details-page, .fleet-page, .confirmation-page');
+    existingDynamic.forEach(el => el.remove());
+
+    const infoRaw = sessionStorage.getItem('bookingConfirmation');
+    let info = null;
+    try { info = infoRaw ? JSON.parse(infoRaw) : null; } catch (e) { info = null; }
+
+    const section = document.createElement('section');
+    section.className = 'confirmation-page';
+    section.innerHTML = `
+        <div class="container">
+            <div class="confirmation-card">
+                <h1 class="section-title">Thank you for booking</h1>
+                ${info ? `
+                <p class="booking-card-note">Your reservation has been confirmed.</p>
+                <div class="confirmation-details">
+                    <p><strong>Reservation ID:</strong> ${info.id}</p>
+                    <p><strong>Vehicle ID:</strong> ${info.vehicleId}</p>
+                    <p><strong>Pickup:</strong> ${new Date(info.pickupDate).toLocaleString()}</p>
+                    <p><strong>Drop-off:</strong> ${new Date(info.dropoffDate).toLocaleString()}</p>
+                    <p><strong>Total:</strong> $${info.totalRate}</p>
+                </div>
+                ` : `
+                <p class="booking-card-note">We couldn't find booking details, but your booking request was processed.</p>
+                `}
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="router.navigate('/')">Return to Home</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(section);
+    window.scrollTo(0, 0);
+}

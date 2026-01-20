@@ -1,20 +1,3 @@
-    <script src="router.js"></script>
-    <script src="script.js"></script>
-    <script>
-        // Temporary polyfill/workaround for router.js to catch errors and prevent navigation issues
-        // This is a placeholder; the actual fix should be in router.js or the backend API.
-        // If the router.js is updated to handle API errors gracefully, this can be removed.
-        window.addEventListener('unhandledrejection', (event) => {
-            if (event.reason.message && event.reason.message.includes('Could not fetch cars by category')) {
-                console.error("Caught unhandled rejection related to car category fetch:", event.reason);
-                // Optionally display a user-friendly message
-                // alert('Failed to load car categories. Please try again later.');
-                event.preventDefault(); // Prevent the default unhandled rejection behavior
-            }
-        });
-    </script>
-</body>
-</html>
 \<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,6 +98,11 @@
                     <label for="dropoff-date">Drop-off Date</label>
                     <input type="date" id="dropoff-date">
                 </div>
+                <!-- Dedicated status buttons separated from booking functionality -->
+                <div class="form-group">
+                    <button id="btn-view-blacklisted" class="btn btn-secondary">View Blacklisted Customers</button>
+                    <button id="btn-view-maintenance" class="btn btn-secondary">View Maintenance Vehicles</button>
+                </div>
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="driver-required">
@@ -137,6 +125,10 @@
                 <div class="booking-column">
                     <h3 class="subsection-title">Under maintenance</h3>
                     <div class="booking-list" id="maintenanceCars"></div>
+                </div>
+                <div class="booking-column">
+                    <h3 class="subsection-title">Blacklisted customers (optional)</h3>
+                    <div class="booking-list" id="blacklistedCustomers"></div>
                 </div>
             </div>
         </div>

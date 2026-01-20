@@ -4,14 +4,22 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const oracledb = require('oracledb');
+const path = require('path');
 const { initPool, getConnection, closePool } = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
+let DB_READY = false;
 
 app.use(cors({ origin: '*', credentials: false }));
 app.use(express.json());
+
+// Serve static frontend from project root
+app.use(express.static(path.join(__dirname, '..')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
 
 // Simple auth middleware for protected routes
 function requireAuth(req, res, next) {
@@ -978,6 +986,32 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
   }
 });
 
+// Blacklisted customers endpoint
+app.get('/api/customers/blacklisted', async (_req, res) => {
+  let conn;
+  try {
+    conn = await getConnection();
+    const result = await conn.execute(
+      `SELECT ID, FirstName, LastName, PhoneNumber, Email, BlackListStatus
+       FROM Customer
+       WHERE UPPER(BlackListStatus) = 'Y'
+       ORDER BY ID DESC`
+    );
+    res.json({ items: result.rows || [] });
+  } catch (err) {
+    console.error('Blacklisted customers error:', err);
+    // Offline fallback sample data
+    res.json({ items: [
+      { ID: 3, FIRSTNAME: 'Zara', LASTNAME: 'Malik', PHONENUMBER: '03131234567', EMAIL: 'zara@example.com', BLACKLISTSTATUS: 'Y' },
+      { ID: 8, FIRSTNAME: 'Mark', LASTNAME: 'Lee', PHONENUMBER: '03001234567', EMAIL: 'mark.lee@example.com', BLACKLISTSTATUS: 'Y' }
+    ]});
+  } finally {
+    if (conn) {
+      try { await conn.close(); } catch (e) { console.error('Error closing connection', e); }
+    }
+  }
+});
+
 // Start server with pool
 async function start() {
   try {
@@ -986,12 +1020,17 @@ async function start() {
       password: process.env.DB_PASSWORD,
       connectionString: process.env.DB_CONNECTION_STRING
     });
+    DB_READY = true;
+  } catch (err) {
+    console.error('Database pool init failed, continuing in demo mode:', err.message);
+    DB_READY = false;
+  } finally {
     app.listen(PORT, () => {
       console.log(`API running on http://localhost:${PORT}`);
+      if (!DB_READY) {
+        console.log('Running in demo mode without database connection');
+      }
     });
-  } catch (err) {
-    console.error('Failed to start API', err);
-    process.exit(1);
   }
 }
 

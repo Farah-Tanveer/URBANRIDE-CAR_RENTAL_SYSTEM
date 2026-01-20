@@ -7,23 +7,21 @@
 
 ## Database Setup
 
-1. **Run DDL Scripts** (in order):
+1. Run DDL scripts in order (Oracle SQL Developer or SQL*Plus):
    ```sql
-   -- Run these in Oracle SQL Developer or SQL*Plus
    @backend/sql/DDL.sql
-   @backend/sql/D2.sql
    @backend/sql/app_user.sql
+   @backend/sql/D2.sql
    ```
 
-2. **Add Category Field** (NEW):
-   ```sql
-   @backend/sql/ALTER_Vehicle_AddCategory.sql
-   ```
-
-3. **Insert Data**:
+2. Insert sample data:
    ```sql
    @backend/sql/DML.sql
    ```
+
+Notes:
+- Vehicle.Category is already defined in DDL.sql (no separate ALTER script required).
+- If you previously ran older scripts, re-run DDL.sql to ensure the latest schema is applied.
 
 ## Backend Setup
 
@@ -39,7 +37,7 @@
 
 3. Create `.env` file (copy from `env.example`):
    ```bash
-   cp env.example .env
+   copy env.example .env
    ```
 
 4. Update `.env` with your Oracle database credentials:
@@ -62,23 +60,24 @@ The API will be available at `http://localhost:4000`
 
 ## Frontend Setup
 
-1. The frontend is static HTML/CSS/JS - no build step required!
+1. The frontend is static HTML/CSS/JS - no build step required.
 
-2. **Option 1: Simple HTTP Server** (recommended for development):
+2. Serve the project root so the Images folder and logo load correctly:
    ```bash
-   # Using Python
-   python -m http.server 8000
-   
-   # Using Node.js http-server
+   # Using Node.js http-server (recommended)
    npx http-server -p 8000
+   # Or Python if available
+   python -m http.server 8000
    ```
 
-3. **Option 2: Open directly** (may have CORS issues):
-   - Just open `index.html` in your browser
-   - Note: API calls may fail due to CORS
-
-4. Access the application:
+3. Access the application:
    - Open `http://localhost:8000` in your browser
+
+## Car Images & Logo
+
+- Car photos are located in the `Images/` folder and are automatically displayed on the Cars and Car Details pages.
+- Ensure you serve the project root (not just the `frontend` or `backend` subfolder) so `Images/` and `Logo.svg` are accessible.
+- If some car images are missing, a placeholder is shown.
 
 ## Features Implemented
 
@@ -154,9 +153,9 @@ The API will be available at `http://localhost:4000`
 - Check `API_BASE` in frontend JavaScript files
 - Backend has CORS enabled for all origins
 
-### Category Field Error
-- Make sure you ran `ALTER_Vehicle_AddCategory.sql` before `DML.sql`
-- If Category column doesn't exist, the category API will fail
+### Static Assets Not Loading
+- Serve the project root (`c:\Users\User\Desktop\DIGITAL_CAR_RENTAL_SYSTEM`) so `Images/` and `Logo.svg` are accessible via the browser.
+- If opening HTML files directly from disk, some browsers block API calls or static assets due to CORS; use a local http server.
 
 ## Notes
 

@@ -1,5 +1,31 @@
 // Car Details Page Script
-const API_BASE = 'http://localhost:4000';
+const API_BASE = window.API_BASE || 'http://localhost:4000';
+
+// Map car details to image path (same logic as router.js)
+function getCarImagePath(car) {
+  const desc = (car.DESCRIPTION || '').toLowerCase();
+  const company = (car.COMPANY || '').toLowerCase();
+  const model = (car.MODEL || '').toLowerCase();
+  if (desc.includes('honda city') || model.includes('city')) return 'Images/honda_city.jpg';
+  if (desc.includes('toyota corolla') || model.includes('corolla')) return 'Images/toyota_corola.jpg';
+  if (desc.includes('suzuki swift') || model.includes('swift')) return 'Images/susuk_iswift_altomehran.jpg';
+  if (desc.includes('nissan sunny') || model.includes('sunny')) return 'Images/nissan_sunny.jpg';
+  if (desc.includes('ford fiesta') || model.includes('fiesta')) return 'Images/ford_fiesta.jpg';
+  if (desc.includes('hyundai accent') || model.includes('accent')) return 'Images/hyundai_ascent.jpg';
+  if (desc.includes('hyundai tucson') || model.includes('tucson')) return 'Images/hyundai_tucson.jpg';
+  if (desc.includes('rav4') || model.includes('rav4')) return 'Images/toyota_rav4.jpg';
+  if (desc.includes('sportage') || model.includes('sportage')) return 'Images/kia_sportage.jpg';
+  if (desc.includes('x-trail') || desc.includes('xtrail') || model.includes('x-trail') || model.includes('xtrail')) return 'Images/nissan_xtrail.jpg';
+  if (desc.includes('escape') || model.includes('escape')) return 'Images/ford_escape.jpg';
+  if (desc.includes('cr-v') || model.includes('cr-v') || model.includes('crv')) return 'Images/honda_crv.jpg';
+  if (desc.includes('bmw 3') || model.includes('3 series')) return 'Images/bmw_m3_series.jpg';
+  if (desc.includes('bmw 5') || model.includes('5 series')) return 'Images/m5.jpg';
+  if (desc.includes('c-class') || model.includes('c-class')) return 'Images/mersidies_cclass.jpg';
+  if (desc.includes('e-class') || model.includes('e-class')) return 'Images/mercidies_eclass.jpg';
+  if (desc.includes('audi a4') || model.includes('a4')) return 'Images/audi_a4.jpg';
+  if (desc.includes('audi a6') || model.includes('a6')) return 'Images/audi_a6.jpg';
+  return 'Images/kia_sportage.jpg';
+}
 
 // Get car ID from URL
 function getCarIdFromURL() {
@@ -36,7 +62,7 @@ async function loadCarDetails() {
 
         container.innerHTML = `
             <div class="car-details-grid">
-                <div class="car-image-large">🚗</div>
+                <div class="car-image-large"><img src="${getCarImagePath(car)}" alt="${car.DESCRIPTION || 'Vehicle ' + car.ID}"></div>
                 <div class="car-info">
                     <h1 class="car-title">${car.DESCRIPTION || 'Vehicle ' + car.ID}</h1>
                     <p class="car-subtitle">${car.COMPANY || ''} · ${car.MODEL || ''} ${car.YEAR || ''}</p>
