@@ -31,6 +31,11 @@
             gap: 40px;
             margin-bottom: 40px;
         }
+        @media (max-width: 768px) {
+            .car-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         .car-image-large {
             width: 100%;
             height: 400px;
@@ -41,6 +46,12 @@
             justify-content: center;
             color: white;
             font-size: 120px;
+            overflow: hidden;
+        }
+        .car-image-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .car-info {
             background: white;

@@ -1,5 +1,5 @@
 // ===== Hash-Based Router for Static File Server =====
-window.API_BASE = 'http://localhost:4000';
+window.API_BASE = 'http://localhost:4001';
 const API_BASE = window.API_BASE;
 
 class HashRouter {
@@ -642,17 +642,16 @@ function createCarCard(car) {
 
 function bookCarFromList(carId) {
     const token = localStorage.getItem('urbanride_token');
-    if (!token) {
-        alert('Please login first to book a car.');
-        if (window.openAuth) {
-            window.openAuth('login');
-        }
+    if (token) {
+        router.navigate('/booking');
         return;
     }
-        // Navigate to home and scroll to booking
-    router.navigate('/booking'); 
-    
-    // Pre-select vehicle if booking form exists (simple implementation)
+    // Not logged in: open auth modal (no alert spam)
+    if (window.openAuth) {
+        window.openAuth('login');
+    } else {
+        alert('Please login first to book a car.');
+    }
 }
 
 window.bookCarFromList = bookCarFromList;

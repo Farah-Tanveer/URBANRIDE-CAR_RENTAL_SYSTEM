@@ -141,6 +141,8 @@ app.post('/api/auth/signup', async (req, res) => {
       // Don't fail signup if customer creation has issues - user can still login
     }
 
+    await conn.commit(); // Commit transaction
+
     const token = jwt.sign({ sub: userId, email }, JWT_SECRET, { expiresIn: '2h' });
     res.status(201).json({ token, user: { id: userId, fullName, email, phone } });
   } catch (err) {
@@ -203,6 +205,38 @@ app.post('/api/auth/login', async (req, res) => {
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
+
+  // Always allow demo credentials for convenience
+  const demoUsers = [
+    { id: 1, fullName: 'Admin', email: 'admin@urbanride.com', password: 'admin123', phone: '0000000000', role: 'ADMIN', customerId: null },
+    { id: 2, fullName: 'John Doe', email: 'john@urbanride.com', password: 'user123', phone: '0000000000', role: 'USER', customerId: 101 }
+  ];
+  const demoMatch = demoUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+  if (demoMatch) {
+    const token = jwt.sign({ sub: demoMatch.id, email: demoMatch.email, role: demoMatch.role, customerId: demoMatch.customerId }, JWT_SECRET, { expiresIn: '2h' });
+    return res.json({
+      token,
+      user: { id: demoMatch.id, fullName: demoMatch.fullName, email: demoMatch.email, phone: demoMatch.phone, role: demoMatch.role, customerId: demoMatch.customerId }
+    });
+  }
+
+  // Demo mode fallback (no DB connection)
+  if (!DB_READY) {
+    const demos = [
+      { id: 1, fullName: 'Admin', email: 'admin@urbanride.com', password: 'admin123', phone: '0000000000', role: 'ADMIN', customerId: null },
+      { id: 2, fullName: 'John Doe', email: 'john@urbanride.com', password: 'user123', phone: '0000000000', role: 'USER', customerId: 101 }
+    ];
+    const match = demos.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid credentials (demo mode). Try admin@urbanride.com/admin123 or john@urbanride.com/user123' });
+    }
+    const token = jwt.sign({ sub: match.id, email: match.email, role: match.role, customerId: match.customerId }, JWT_SECRET, { expiresIn: '2h' });
+    return res.json({
+      token,
+      user: { id: match.id, fullName: match.fullName, email: match.email, phone: match.phone, role: match.role, customerId: match.customerId }
+    });
+  }
+
   try {
     conn = await getConnection();
     const result = await conn.execute(
@@ -217,26 +251,27 @@ app.post('/api/auth/login', async (req, res) => {
     if (!valid) {
       return res.status(401).json({ error: 'Incorrect password. Please try again.' });
     }
-    
+
     // Ensure Customer record exists (only if not admin, but let's just try anyway)
     let customerId = null;
     try {
-        customerId = await getCustomerIdFromAppUser(
-          conn,
-          user.ID,
-          user.EMAIL,
-          user.FULLNAME,
-          user.PHONE
-        );
+      customerId = await getCustomerIdFromAppUser(
+        conn,
+        user.ID,
+        user.EMAIL,
+        user.FULLNAME,
+        user.PHONE
+      );
+      await conn.commit(); // Commit in case a new customer record was created
     } catch (e) {
-        console.log('Could not link customer (might be pure admin):', e.message);
+      console.log('Could not link customer (might be pure admin):', e.message);
     }
-    
-    const token = jwt.sign({ 
-        sub: user.ID, 
-        email: user.EMAIL, 
-        role: user.ROLE,
-        customerId 
+
+    const token = jwt.sign({
+      sub: user.ID,
+      email: user.EMAIL,
+      role: user.ROLE,
+      customerId
     }, JWT_SECRET, { expiresIn: '2h' });
 
     res.json({
@@ -274,7 +309,7 @@ app.get('/api/fleet', async (_req, res) => {
        FROM Vehicle v
        LEFT JOIN PlateNumber pn ON pn.Vehicle_id = v.ID
        LEFT JOIN Company c ON c.ID = v.Company_id
-       FETCH FIRST 20 ROWS ONLY`
+       WHERE ROWNUM <= 20`
     );
     res.json({ items: result.rows || [] });
   } catch (err) {
@@ -389,6 +424,17 @@ app.get('/api/cars/maintenance', async (_req, res) => {
 app.get('/api/cars/reserved', async (req, res) => {
   const { start, end } = req.query;
   let conn;
+
+  // Demo fallback
+  if (!DB_READY) {
+    const items = [
+      { ID: 5, DESCRIPTION: 'Ford Fiesta', COMPANY: 'Ford', PLATENUMBER: 'LHR-1005', COLOR: 'Black', RENT_STARTDATE: new Date().toISOString(), RENT_ENDDATE: new Date(Date.now()+86400000*3).toISOString(), CUSTOMERNAME: 'Ahmed Khan' },
+      { ID: 202, DESCRIPTION: 'Hyundai Tucson', COMPANY: 'Hyundai', PLATENUMBER: 'SUV-002', COLOR: 'Silver', RENT_STARTDATE: new Date(Date.now()+86400000*2).toISOString(), RENT_ENDDATE: new Date(Date.now()+86400000*5).toISOString(), CUSTOMERNAME: 'Sara Ali' },
+      { ID: 303, DESCRIPTION: 'Audi A4', COMPANY: 'Audi', PLATENUMBER: 'LUX-102', COLOR: 'Blue', RENT_STARTDATE: new Date(Date.now()+86400000*1).toISOString(), RENT_ENDDATE: new Date(Date.now()+86400000*4).toISOString(), CUSTOMERNAME: 'John Doe' }
+    ];
+    return res.json({ items });
+  }
+
   try {
     conn = await getConnection();
     let query = `SELECT v.ID,
@@ -718,33 +764,36 @@ app.get('/api/cars/:id', async (req, res) => {
     
     // Get maintenance history (MAINTENANCE TRANSPARENCY FEATURE)
     const maintenanceResult = await conn.execute(
-      `SELECT MaintenanceDate, Description, Cost
-       FROM Maintenance
-       WHERE Vehicle_id = :id
-       ORDER BY MaintenanceDate DESC
-       FETCH FIRST 10 ROWS ONLY`,
+      `SELECT * FROM (
+         SELECT MaintenanceDate, Description, Cost
+         FROM Maintenance
+         WHERE Vehicle_id = :id
+         ORDER BY MaintenanceDate DESC
+       ) WHERE ROWNUM <= 10`,
       { id }
     );
     
     // Get damage history
     const damageResult = await conn.execute(
-      `SELECT SeverityLevel, Description, EstimatedCost, ReportDate
-       FROM Damage_Report
-       WHERE Vehicle_id = :id
-       ORDER BY ReportDate DESC
-       FETCH FIRST 5 ROWS ONLY`,
+      `SELECT * FROM (
+         SELECT SeverityLevel, Description, EstimatedCost, ReportDate
+         FROM Damage_Report
+         WHERE Vehicle_id = :id
+         ORDER BY ReportDate DESC
+       ) WHERE ROWNUM <= 5`,
       { id }
     );
     
     // Get upcoming reservations
     const reservationResult = await conn.execute(
-      `SELECT Rent_StartDate, Rent_EndDate, Status
-       FROM Reservation
-       WHERE Vehicle_id = :id
-       AND Status = 'RESERVED'
-       AND Rent_StartDate >= SYSDATE
-       ORDER BY Rent_StartDate
-       FETCH FIRST 3 ROWS ONLY`,
+      `SELECT * FROM (
+         SELECT Rent_StartDate, Rent_EndDate, Status
+         FROM Reservation
+         WHERE Vehicle_id = :id
+         AND Status = 'RESERVED'
+         AND Rent_StartDate >= SYSDATE
+         ORDER BY Rent_StartDate
+       ) WHERE ROWNUM <= 3`,
       { id }
     );
     
@@ -789,6 +838,11 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
 
     // Get user's Customer ID
     const appUserId = req.user.sub;
+    // Use DB record if available; otherwise use token claims and create customer if needed
+    let appUserEmail = req.user.email;
+    let appUserFullName = 'Demo User';
+    let appUserPhone = '0000000000';
+    
     const appUserResult = await conn.execute(
       'SELECT Email, FullName, Phone FROM AppUser WHERE ID = :id',
       { id: appUserId }
@@ -828,26 +882,27 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
        WHERE r.Vehicle_id = :vehicleId
          AND r.Status = 'RESERVED'
          AND NOT (
-           r.Rent_EndDate < TO_DATE(:start, 'YYYY-MM-DD')
-           OR r.Rent_StartDate > TO_DATE(:end, 'YYYY-MM-DD')
+           r.Rent_EndDate < TO_DATE(:startDate, 'YYYY-MM-DD')
+           OR r.Rent_StartDate > TO_DATE(:endDate, 'YYYY-MM-DD')
          )`,
-      { vehicleId, start: pickupDate, end: dropoffDate }
+      { vehicleId, startDate: pickupDate, endDate: dropoffDate }
     );
 
     if (conflict.rows && conflict.rows.length > 0) {
       // Get the conflicting reservation details for better error message
       const conflictDetails = await conn.execute(
-        `SELECT TO_CHAR(Rent_StartDate, 'YYYY-MM-DD') AS StartDate, 
-                TO_CHAR(Rent_EndDate, 'YYYY-MM-DD') AS EndDate
-         FROM Reservation
-         WHERE Vehicle_id = :vehicleId
-           AND Status = 'RESERVED'
-           AND NOT (
-             Rent_EndDate < TO_DATE(:start, 'YYYY-MM-DD')
-             OR Rent_StartDate > TO_DATE(:end, 'YYYY-MM-DD')
-           )
-         FETCH FIRST 1 ROWS ONLY`,
-        { vehicleId, start: pickupDate, end: dropoffDate }
+        `SELECT * FROM (
+           SELECT TO_CHAR(Rent_StartDate, 'YYYY-MM-DD') AS StartDate, 
+                  TO_CHAR(Rent_EndDate, 'YYYY-MM-DD') AS EndDate
+           FROM Reservation
+           WHERE Vehicle_id = :vehicleId
+             AND Status = 'RESERVED'
+             AND NOT (
+               Rent_EndDate < TO_DATE(:startDate, 'YYYY-MM-DD')
+               OR Rent_StartDate > TO_DATE(:endDate, 'YYYY-MM-DD')
+             )
+         ) WHERE ROWNUM <= 1`,
+        { vehicleId, startDate: pickupDate, endDate: dropoffDate }
       );
       
       if (conflictDetails.rows && conflictDetails.rows.length > 0) {
@@ -903,7 +958,7 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
       `SELECT s.ID FROM Staff s
        JOIN Role r ON s.Role_id = r.ID
        WHERE r.Name = 'STAFF'
-       FETCH FIRST 1 ROWS ONLY`
+       AND ROWNUM <= 1`
     );
     const staffId = staffResult.rows?.[0]?.ID || 1;
 
@@ -930,9 +985,9 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
          :staffId,
          :driverRequired,
          NULL,
-         TO_DATE(:start, 'YYYY-MM-DD'),
-         TO_DATE(:end, 'YYYY-MM-DD'),
-         :rate,
+         TO_DATE(:startDate, 'YYYY-MM-DD'),
+         TO_DATE(:endDate, 'YYYY-MM-DD'),
+         :totalRate,
          'DAILY',
          'RESERVED',
          'UNPAID'
@@ -942,22 +997,25 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
         customerId,
         staffId,
         driverRequired: driverRequired ? 'Y' : 'N',
-        start: pickupDate,
-        end: dropoffDate,
-        rate: totalRate
+        startDate: pickupDate,
+        endDate: dropoffDate,
+        totalRate: totalRate
       }
     );
 
+    await conn.commit(); // Commit the reservation
+
     // Get the inserted reservation ID
     const bookingResult = await conn.execute(
-      `SELECT ID FROM Reservation 
-       WHERE Vehicle_id = :vehicleId 
-       AND Customer_id = :customerId
-       AND Rent_StartDate = TO_DATE(:start, 'YYYY-MM-DD')
-       AND Rent_EndDate = TO_DATE(:end, 'YYYY-MM-DD')
-       ORDER BY ID DESC
-       FETCH FIRST 1 ROWS ONLY`,
-      { vehicleId, customerId, start: pickupDate, end: dropoffDate }
+      `SELECT * FROM (
+         SELECT ID FROM Reservation 
+         WHERE Vehicle_id = :vehicleId 
+         AND Customer_id = :customerId
+         AND Rent_StartDate = TO_DATE(:startDate, 'YYYY-MM-DD')
+         AND Rent_EndDate = TO_DATE(:endDate, 'YYYY-MM-DD')
+         ORDER BY ID DESC
+       ) WHERE ROWNUM <= 1`,
+      { vehicleId, customerId, startDate: pickupDate, endDate: dropoffDate }
     );
     
     const bookingId = bookingResult.rows[0].ID;

@@ -330,14 +330,27 @@ async function loadDamageHistory(vehicleId, btn) {
     }
 }
 
+function setBookingStatus(message, type = 'info') {
+    const el = document.getElementById('bookingStatus');
+    if (!el) return;
+    el.textContent = message;
+    el.className = `booking-status show ${type}`;
+}
+function clearBookingStatus() {
+    const el = document.getElementById('bookingStatus');
+    if (!el) return;
+    el.textContent = '';
+    el.className = 'booking-status';
+}
 async function createBooking(payload) {
     const token = localStorage.getItem('urbanride_token');
     if (!token) {
-        alert('Please login first to complete your booking.');
-        openAuth('login');
+        setBookingStatus('Please login first to complete your booking.', 'error');
+        if (typeof openAuth === 'function') openAuth('login');
         return;
     }
     try {
+        setBookingStatus('Processing booking...', 'info');
         const res = await fetch(`${API_BASE}/api/bookings`, {
             method: 'POST',
             headers: {
@@ -348,7 +361,10 @@ async function createBooking(payload) {
         });
         const data = await res.json();
         if (!res.ok) {
-            throw new Error(data.error || 'Booking failed');
+            // Show precise backend error inline
+            const msg = data && data.error ? data.error : 'Booking failed';
+            setBookingStatus(msg, 'error');
+            return;
         }
         // Save confirmation info and navigate to confirmation page
         sessionStorage.setItem('bookingConfirmation', JSON.stringify({
@@ -358,6 +374,7 @@ async function createBooking(payload) {
             pickupDate: payload.pickupDate,
             dropoffDate: payload.dropoffDate
         }));
+        clearBookingStatus();
         if (window.router) {
             window.router.navigate('/confirmation');
         } else {
@@ -365,7 +382,8 @@ async function createBooking(payload) {
         }
     } catch (err) {
         console.error(err);
-        // Offline demo fallback: simulate a successful reservation
+        // Show network error inline and fallback to demo confirmation
+        setBookingStatus('Network issue detected. Using demo confirmation.', 'info');
         const fakeReservationId = Math.floor(Math.random() * 10000) + 1000;
         const days = Math.ceil((new Date(payload.dropoffDate) - new Date(payload.pickupDate)) / 86400000);
         const sampleRate = 50; // demo daily rate
@@ -650,3 +668,125 @@ console.log('%cBuilt with modern web technologies', 'color: #CFD0D8; font-size: 
 
 // Routing is now handled by router.js
 // Category cards and navigation links use onclick handlers with router.navigate()
+
+// Dedicated views for Blacklisted Customers and Maintenance Vehicles
+async function showBlacklistedCustomers() {
+    const container = document.getElementById('blacklistedCustomers') || document.getElementById('bookingResults');
+    if (!container) { alert('Blacklisted list view is not available here.'); return; }
+    const target = document.getElementById('blacklistedCustomers');
+    if (target) {
+        target.innerHTML = '<p class="booking-card-note">Loading blacklisted customers...</p>';
+    } else {
+        // create a temporary panel at top of bookingResults
+        const panel = document.createElement('div');
+        panel.id = 'blacklistedCustomers';
+        panel.className = 'booking-list';
+        panel.innerHTML = '<h3 class="subsection-title">Blacklisted customers</h3><p class="booking-card-note">Loading blacklisted customers...</p>';
+        container.prepend(panel);
+    }
+    try {
+        const res = await fetch(`${API_BASE}/api/customers/blacklisted`);
+        const data = await res.json();
+        const items = data.items || data || [];
+        renderBlacklistedList(items);
+    } catch (err) {
+        console.warn('Blacklisted endpoint unavailable, showing offline sample.', err);
+        const offlineBlacklisted = [
+            { CUSTOMERID: 9001, NAME: 'Ahmed Khan', CNIC: '35202-1234567-1', REASON: 'Payment default', SINCE: new Date(Date.now() - 86400000 * 90).toISOString() },
+            { CUSTOMERID: 9002, NAME: 'Sara Ali', CNIC: '35202-2345678-2', REASON: 'Policy violation', SINCE: new Date(Date.now() - 86400000 * 120).toISOString() },
+            { CUSTOMERID: 9003, NAME: 'John Doe', CNIC: '35202-3456789-3', REASON: 'Chargeback fraud', SINCE: new Date(Date.now() - 86400000 * 200).toISOString() }
+        ];
+        renderBlacklistedList(offlineBlacklisted);
+    }
+}
+
+function renderBlacklistedList(list) {
+    const container = document.getElementById('blacklistedCustomers');
+    if (!container) return;
+    container.innerHTML = '';
+    if (list.length === 0) {
+        container.innerHTML = '<p class="booking-card-note">No blacklisted customers found.</p>';
+        return;
+    }
+    list.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'booking-card';
+        const since = c.SINCE ? new Date(c.SINCE).toLocaleDateString() : '-';
+        card.innerHTML = `
+            <div>
+                <div class="booking-card-header">
+                    ${c.NAME || 'Customer ' + (c.CUSTOMERID || '')}
+                    <span class="badge-small" style="background:#ff6b6b;">BLACKLISTED</span>
+                </div>
+                <div class="booking-card-meta">
+                    CNIC ${c.CNIC || '-'} · Since ${since}
+                </div>
+                <p class="booking-card-note">Reason: ${c.REASON || 'N/A'}</p>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function showMaintenanceVehicles() {
+    const container = document.getElementById('maintenanceCars');
+    if (!container) return;
+    container.innerHTML = '<p class="booking-card-note">Loading maintenance vehicles...</p>';
+    try {
+        const res = await fetch(`${API_BASE}/api/cars/maintenance`);
+        const data = await res.json();
+        const items = data.items || data || [];
+        renderMaintenanceList(items);
+    } catch (err) {
+        console.warn('Maintenance endpoint unavailable, showing offline sample.', err);
+        const offlineMaintenance = [
+            { ID: 6, DESCRIPTION: 'Hyundai Accent', PLATENUMBER: 'LHR-1006', COLOR: 'Grey', MAINTENANCEDATE: new Date().toISOString(), MaintenanceDescription: 'Brake System Inspection and Repair' },
+            { ID: 205, DESCRIPTION: 'Kia Sportage', PLATENUMBER: 'SUV-005', COLOR: 'Red', MAINTENANCEDATE: new Date(Date.now() - 86400000 * 20).toISOString(), MaintenanceDescription: 'Engine oil and filters replacement' },
+            { ID: 303, DESCRIPTION: 'Audi A4', PLATENUMBER: 'LUX-102', COLOR: 'Blue', MAINTENANCEDATE: new Date(Date.now() - 86400000 * 40).toISOString(), MaintenanceDescription: 'Suspension check and alignment' }
+        ];
+        renderMaintenanceList(offlineMaintenance);
+    }
+}
+
+function renderMaintenanceList(list) {
+    const container = document.getElementById('maintenanceCars');
+    if (!container) return;
+    container.innerHTML = '';
+    if (list.length === 0) {
+        container.innerHTML = '<p class="booking-card-note">No vehicles are currently under maintenance.</p>';
+        return;
+    }
+    list.forEach(row => {
+        const card = document.createElement('div');
+        card.className = 'booking-card';
+        card.innerHTML = `
+            <div>
+                <div class="booking-card-header">
+                    ${row.DESCRIPTION || 'Vehicle ' + row.ID}
+                    <span class="badge-small">MAINTENANCE</span>
+                </div>
+                <div class="booking-card-meta">
+                    Plate ${row.PLATENUMBER || '-'} · ${row.COLOR || ''}
+                </div>
+                <p class="booking-card-note">
+                    Last maintenance on ${row.MAINTENANCEDATE ? new Date(row.MAINTENANCEDATE).toLocaleDateString() : '-'} – ${row.MaintenanceDescription || 'Maintenance'}
+                </p>
+            </div>
+            <div class="booking-card-actions">
+                <button class="btn-ghost-small" data-view="${row.ID}">View Details</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+    // Attach view details handler
+    container.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-view');
+            if (window.router) {
+                window.router.navigate(`/car/${id}`);
+            } else {
+                window.location.hash = `#/car/${id}`;
+            }
+        });
+    });
+}

@@ -1,5 +1,5 @@
 // Car Details Page Script
-const API_BASE = window.API_BASE || 'http://localhost:4000';
+const API_BASE = window.API_BASE || 'http://localhost:4001';
 
 // Map car details to image path (same logic as router.js)
 function getCarImagePath(car) {
@@ -163,16 +163,17 @@ async function loadCarDetails() {
 // Book this car
 function bookThisCar(carId) {
     const token = localStorage.getItem('urbanride_token');
-    if (!token) {
-        alert('Please login first to book this car.');
-        if (window.openAuth) {
-            window.openAuth('login');
-        } else {
-            window.location.href = '/#login';
-        }
+    // If already logged in, do not prompt, proceed to booking
+    if (token) {
+        window.location.href = `/#booking?car=${carId}`;
         return;
     }
-    window.location.href = `/#booking?car=${carId}`;
+    // If not logged in, open auth modal for login (no page redirect)
+    if (window.openAuth) {
+        window.openAuth('login');
+    } else {
+        alert('Please login first to book this car.');
+    }
 }
 
 // Initialize page

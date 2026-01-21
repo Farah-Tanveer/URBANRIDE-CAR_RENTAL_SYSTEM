@@ -628,6 +628,55 @@ body {
     transform: translateY(-3px);
 }
 
+.btn-outline-danger {
+    background: transparent;
+    color: #ff6b6b;
+    border: 2px solid #ff6b6b;
+}
+
+.btn-outline-danger:hover {
+    background: #ff6b6b;
+    color: #0b0b2c;
+    transform: translateY(-3px);
+}
+
+.btn-outline-warning {
+    background: transparent;
+    color: #f5a623;
+    border: 2px solid #f5a623;
+}
+
+.btn-outline-warning:hover {
+    background: #f5a623;
+    color: #0b0b2c;
+    transform: translateY(-3px);
+}
+
+/* Blue outline button variants */
+.btn-outline-blue {
+    background: transparent;
+    color: var(--primary-cyan);
+    border: 2px solid var(--primary-cyan);
+}
+
+.btn-outline-blue:hover {
+    background: var(--primary-cyan);
+    color: var(--dark-blue-1);
+    transform: translateY(-3px);
+}
+
+.btn-outline-blue-light {
+    background: transparent;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+}
+
+.btn-outline-blue-light:hover {
+    background: var(--primary-blue);
+    color: var(--white);
+    transform: translateY(-3px);
+}
+
 .hero-card {
     background: linear-gradient(180deg, rgba(0, 0, 24, 0.9), rgba(0, 0, 48, 0.85));
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -897,6 +946,19 @@ body {
     width: 100%;
     text-align: center;
 }
+
+/* ===== Booking Status ===== */
+.booking-status {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: none;
+}
+.booking-status.show { display: block; }
+.booking-status.info { background: #e8f2ff; color: var(--dark-blue-2); border: 1px solid var(--primary-blue); }
+.booking-status.success { background: #e8ffea; color: #1b5e20; border: 1px solid #43a047; }
+.booking-status.error { background: #ffecec; color: #b00020; border: 1px solid #e53935; }
 
 /* ===== Features Section ===== */
 .features {

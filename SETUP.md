@@ -56,48 +56,37 @@ Notes:
    npm run dev
    ```
 
-The API will be available at `http://localhost:4000`
-
-## Frontend Setup
-
-1. The frontend is static HTML/CSS/JS - no build step required.
-
-2. Serve the project root so the Images folder and logo load correctly:
-   ```bash
-   # Using Node.js http-server (recommended)
-   npx http-server -p 8000
-   # Or Python if available
-   python -m http.server 8000
-   ```
-
-3. Access the application:
-   - Open `http://localhost:8000` in your browser
+6. The application (Frontend + Backend) will be available at `http://localhost:4001` (or the PORT defined in .env).
+   The backend serves the frontend files automatically.
 
 ## Car Images & Logo
 
-- Car photos are located in the `Images/` folder and are automatically displayed on the Cars and Car Details pages.
-- Ensure you serve the project root (not just the `frontend` or `backend` subfolder) so `Images/` and `Logo.svg` are accessible.
-- If some car images are missing, a placeholder is shown.
+- Car photos are located in the `Images/` folder.
+- Since the backend serves the project root, images are accessible directly.
 
 ## Features Implemented
 
-### ✅ Feature 1: Clickable Category Cards
-- Category cards on homepage are clickable
-- Navigate to `/cars/economy`, `/cars/suv`, or `/cars/luxury`
-- Shows filtered cars by category
+### ✅ Feature 1: Responsive & Mobile-First Design
+- Optimized for mobile devices and desktops.
+- Responsive grid layouts for car listings and details.
+- Hamburger menu for mobile navigation.
 
-### ✅ Feature 2: Car Details Page
-- Navigate to `/car/:id` to see full car details
-- Shows all information including features, maintenance history
+### ✅ Feature 2: Car Details Page & Booking
+- Navigate to `/car/:id` to see full car details.
+- Large, responsive car images with proper aspect ratio.
+- "Book This Car" flow leads to a successful booking and a "Thank You" confirmation page.
 
-### ✅ Feature 3: Backend APIs
+### ✅ Feature 3: Backend APIs & Database
+- Full Oracle Database connection using `oracledb`.
 - `GET /api/cars/category/:category` - Get cars by category
 - `GET /api/cars/:id` - Get complete car details
-- Improved booking validation
+- `POST /api/bookings` - Create a reservation (checked against availability)
+- `GET /api/health` - Health check
 
-### ✅ Feature 4: Enhanced DML Data
-- 18 cars total (6 Economy, 6 SUV, 6 Luxury)
-- Mix of AVAILABLE, RESERVED, and MAINTENANCE statuses
+### ✅ Feature 4: Enhanced Data
+- 18 cars total (Economy, SUV, Luxury)
+- Real-time availability checks against reservations.
+
 - Realistic data with different companies and rates
 
 ### ✅ Feature 5: Improved Authentication

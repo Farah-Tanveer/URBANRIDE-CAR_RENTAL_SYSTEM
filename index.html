@@ -100,8 +100,8 @@
                 </div>
                 <!-- Dedicated status buttons separated from booking functionality -->
                 <div class="form-group">
-                    <button id="btn-view-blacklisted" class="btn btn-secondary">View Blacklisted Customers</button>
-                    <button id="btn-view-maintenance" class="btn btn-secondary">View Maintenance Vehicles</button>
+                    <button id="btn-view-blacklisted" class="btn btn-outline-blue">View Blacklisted Customers</button>
+<button id="btn-view-maintenance" class="btn btn-outline-blue-light">View Maintenance Vehicles</button>
                 </div>
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
@@ -112,6 +112,7 @@
                 <div class="form-group">
                     <button class="btn btn-primary btn-search">Search Cars</button>
                 </div>
+                <div id="bookingStatus" class="booking-status"></div>
             </div>
             <div class="booking-results" id="bookingResults">
                 <div class="booking-column">
@@ -126,10 +127,7 @@
                     <h3 class="subsection-title">Under maintenance</h3>
                     <div class="booking-list" id="maintenanceCars"></div>
                 </div>
-                <div class="booking-column">
-                    <h3 class="subsection-title">Blacklisted customers (optional)</h3>
-                    <div class="booking-list" id="blacklistedCustomers"></div>
-                </div>
+
             </div>
         </div>
     </section>

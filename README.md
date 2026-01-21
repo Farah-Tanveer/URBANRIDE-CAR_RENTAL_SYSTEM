@@ -52,20 +52,15 @@ Ensure your Oracle 11g instance is running. The system uses the following creden
 - **Password:** `meena`
 - **Connection:** `localhost:1521/xe`
 
-### 2. Backend Start
+### 2. Run Application
+The backend serves the frontend files automatically.
+
 ```bash
 cd backend
 npm install
 npm start
 ```
-*Server runs on: http://localhost:4001*
-
-### 3. Frontend Start
-Open a new terminal in the project root:
-```bash
-python -m http.server 8000
-```
-*Access App at: http://localhost:8000*
+*Access App at: http://localhost:4001*
 
 ## 🔑 Demo Credentials
 
