@@ -36,8 +36,9 @@ A premium, full-stack car rental management system built with **Node.js**, **Ora
 - **Fleet Management:** Add new vehicles to the system (Company, Model, Rate, etc.).
 - **System Overview:** (Extensible) View all active bookings and fleet status.
 
-### 🔧 Debugger Mode
-- **Direct DB Access:** A special `debug_scenarios.js` script allows developers to test database constraints, triggers, and logic directly, bypassing the UI.
+### 🔧 Backend Reliability
+- **Direct API Calls:** A streamlined Node.js architecture processes requests efficiently.
+- **Data Integrity:** Strict SQL constraints and triggers ensure booking overlaps are impossible.
 
 ## 🛠️ Setup & Installation
 
@@ -69,12 +70,12 @@ Use these credentials to test the different roles:
 | Role | Email | Password | Features |
 |------|-------|----------|----------|
 | **Admin** | `admin@urbanride.com` | `admin123` | Add Cars, Manage Fleet |
-| **User** | `john@urbanride.com` | `user123` | Book Cars, View History |
+| **User** | `john@urbanride.com` | `123456` | Book Cars, View History |
 
-## 🧪 Debugger Script
-To showcase database functionalities (Booking, Cancellation, Maintenance Checks) directly via the console:
+## 🧪 Testing
+To verify the system components:
 ```bash
-node backend/debug_scenarios.js
+npm test
 ```
 
 ## 📂 Project Structure
