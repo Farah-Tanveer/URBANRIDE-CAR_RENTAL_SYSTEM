@@ -360,15 +360,15 @@ app.get('/api/cars/available', async (req, res) => {
            SELECT r.Vehicle_id
            FROM Reservation r
            WHERE UPPER(r.Status) = 'RESERVED'
-             AND NOT (
-               r.Rent_EndDate < TO_DATE(:start, 'YYYY-MM-DD')
-               OR r.Rent_StartDate > TO_DATE(:end, 'YYYY-MM-DD')
-             )
-         )
-       ORDER BY v.DailyRate`,
-      { start, end }
-    );
-    res.json({ items: result.rows || [] });
+            AND NOT (
+              r.Rent_EndDate < TO_DATE(:startDate, 'YYYY-MM-DD')
+              OR r.Rent_StartDate > TO_DATE(:endDate, 'YYYY-MM-DD')
+            )
+        )
+      ORDER BY v.DailyRate`,
+     { startDate: start, endDate: end }
+   );
+   res.json({ items: result.rows || [] });
   } catch (err) {
     console.error('Available cars error:', err);
     res.status(500).json({ error: 'Could not fetch available cars', detail: err.message });
@@ -457,10 +457,10 @@ app.get('/api/cars/reserved', async (req, res) => {
     const binds = {};
     if (start && end) {
       query += ` AND (
-        (r.Rent_StartDate <= TO_DATE(:end, 'YYYY-MM-DD') AND r.Rent_EndDate >= TO_DATE(:start, 'YYYY-MM-DD'))
+        (r.Rent_StartDate <= TO_DATE(:endDate, 'YYYY-MM-DD') AND r.Rent_EndDate >= TO_DATE(:startDate, 'YYYY-MM-DD'))
       )`;
-      binds.start = start;
-      binds.end = end;
+      binds.startDate = start;
+      binds.endDate = end;
     }
     
     query += ` ORDER BY r.Rent_StartDate DESC`;

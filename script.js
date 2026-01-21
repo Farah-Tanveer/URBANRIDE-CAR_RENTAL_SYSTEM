@@ -364,6 +364,18 @@ async function createBooking(payload) {
             // Show precise backend error inline
             const msg = data && data.error ? data.error : 'Booking failed';
             setBookingStatus(msg, 'error');
+            
+            // Check for invalid token
+            if (res.status === 401 || msg.toLowerCase().includes('invalid token') || msg.toLowerCase().includes('missing token')) {
+                localStorage.removeItem('urbanride_token');
+                localStorage.removeItem('urbanride_role');
+                if (typeof checkAdminStatus === 'function') checkAdminStatus();
+                
+                setTimeout(() => {
+                    alert('Your session has expired or is invalid. Please login again.');
+                    if (typeof openAuth === 'function') openAuth('login');
+                }, 1000);
+            }
             return;
         }
         // Save confirmation info and navigate to confirmation page
