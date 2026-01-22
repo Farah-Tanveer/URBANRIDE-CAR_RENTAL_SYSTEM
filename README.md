@@ -18,7 +18,7 @@ A premium, full-stack car rental management system built with **Node.js**, **Ora
 
 - **Database:**
   - **Oracle Database 11g Express Edition (XE)**
-  - Relational Schema (3NF)
+  - Relational Schema (BCNF)
   - PL/SQL Triggers & Sequences
   - Complex SQL Queries for Availability & Reporting
 
